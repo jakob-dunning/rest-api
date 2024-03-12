@@ -1,6 +1,11 @@
 FROM php:8.3-fpm-alpine
 COPY install_composer.sh /
-RUN chmod +x /install_composer.sh
-RUN /install_composer.sh
-RUN rm /install_composer.sh
-RUN mv composer.phar /usr/bin/composer
+RUN chmod +x /install_composer.sh \
+    && /install_composer.sh \
+    && rm /install_composer.sh \
+    && mv composer.phar /usr/bin/composer
+RUN apk update && apk upgrade
+RUN apk add --no-cache --update $PHPIZE_DEPS linux-headers libpq-dev \
+    && pecl install xdebug \
+    && docker-php-ext-enable xdebug
+RUN docker-php-ext-install pdo_pgsql pgsql

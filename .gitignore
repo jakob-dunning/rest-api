@@ -1,2 +1,5 @@
 /.idea/
 /vendor/
+.phpunit.result.cache
+/tests/coverage/*
+!/tests/coverage/.gitkeep

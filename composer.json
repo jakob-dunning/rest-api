@@ -5,7 +5,7 @@
     "autoload": {
         "psr-4": {
             "CodingChallenge\\": "src/",
-            "Tests\\": "tests/"
+            "Tests\\EndToEnd\\": "tests/end-to-end"
         }
     },
     "authors": [
@@ -14,5 +14,16 @@
         }
     ],
     "minimum-stability": "stable",
-    "require": {}
+    "require": {
+        "php": "^8.3",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "ext-pdo": "*",
+        "ext-pdo_pgsql": "*",
+        "ext-pgsql": "*"
+    },
+    "require-dev": {
+        "ext-xml": "*",
+        "phpunit/phpunit": "^9.6"
+    }
 }

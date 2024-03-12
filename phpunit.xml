@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<phpunit bootstrap="vendor/autoload.php"
+         convertDeprecationsToExceptions="true"
+         forceCoversAnnotation="true"
+         failOnIncomplete="true"
+         failOnRisky="true"
+         failOnSkipped="true"
+         failOnWarning="true"
+         beStrictAboutChangesToGlobalState="true"
+         beStrictAboutOutputDuringTests="true"
+         beStrictAboutTestsThatDoNotTestAnything="true"
+         beStrictAboutTodoAnnotatedTests="true"
+         beStrictAboutCoversAnnotation="true">
+    <testsuites>
+        <testsuite name="end-to-end">
+            <directory>tests/end-to-end</directory>
+        </testsuite>
+    </testsuites>
+    <coverage>
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+        <report>
+            <html outputDirectory="tests/coverage"/>
+        </report>
+    </coverage>
+</phpunit>

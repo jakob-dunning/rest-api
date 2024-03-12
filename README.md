@@ -17,3 +17,4 @@ It must be possible to:
 - Add versioning to the API
 - Add authorization features to the API
 - Serve API though HTTPS only
+- Keep .env out of GIT repository, add instructions to set up
