@@ -29,7 +29,7 @@
 
     <testsuites>
         <testsuite name="end-to-end">
-            <directory>tests/end-to-end</directory>
+            <directory>tests/EndToEnd</directory>
         </testsuite>
     </testsuites>
 
@@ -47,5 +47,6 @@
     </listeners>
 
     <extensions>
+        <extension class="DAMA\DoctrineTestBundle\PHPUnit\PHPUnitExtension" />
     </extensions>
 </phpunit>

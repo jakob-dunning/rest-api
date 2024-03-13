@@ -8,7 +8,7 @@ test:
 	docker-compose exec php vendor/bin/phpunit
 
 phpstan:
-	docker-compose exec php vendor/bin/phpstan analyse -l 9 src tests
+	docker-compose exec php vendor/bin/phpstan
 
 phpcs:
 	docker-compose exec php vendor/bin/phpcs
