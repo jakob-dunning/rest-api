@@ -17,5 +17,7 @@ It must be possible to:
 - Add versioning to the API
 - Add authorization features to the API
 - Serve API though HTTPS only
-- Keep .env out of GIT repository, add instructions to set up
+- Keep .env out of GIT repository, add instructions to set up, create make setup target
+- Use seaparate database for tests
 - Add githook to run phpstan and phpcs on commit
+- Remove hardcoded url for webserver from end-to-end tests
