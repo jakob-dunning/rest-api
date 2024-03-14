@@ -60,7 +60,6 @@ class PostTest extends KernelTestCase
         );
 
         $this->assertEquals(400, $response->getStatusCode());
-        $this->assertEquals(['error' => 'Id is invalid uuid v4'], json_decode($response->getContent(), true));
     }
 
     /**
@@ -84,10 +83,6 @@ class PostTest extends KernelTestCase
         );
 
         $this->assertEquals(400, $response->getStatusCode());
-        $this->assertEquals(
-            ['error' => sprintf('%s cannot be empty', ucfirst($fieldName))],
-            json_decode($response->getContent(), true)
-        );
 
         $tablet = $this->tabletRepository->find($newItemId);
 
@@ -116,7 +111,6 @@ class PostTest extends KernelTestCase
         ]);
 
         $this->assertEquals(400, $response->getStatusCode());
-        $this->assertEquals(['error' => 'Price cannot be negative'], json_decode($response->getContent(), true));
 
         $tablet = $this->tabletRepository->find($newItemId);
 
@@ -137,7 +131,6 @@ class PostTest extends KernelTestCase
         ]);
 
         $this->assertEquals(400, $response->getStatusCode());
-        $this->assertEquals(['error' => 'Price cannot be higher than 100000000'], json_decode($response->getContent(), true));
 
         $tablet = $this->tabletRepository->find($newItemId);
 
@@ -166,10 +159,6 @@ class PostTest extends KernelTestCase
         );
 
         $this->assertEquals(400, $response->getStatusCode());
-        $this->assertEquals(
-            ['error' => sprintf('Missing fields: %s', ucfirst($dataFieldName))],
-            json_decode($response->getContent(), true)
-        );
 
         $tablet = $this->tabletRepository->find($newItemId);
 

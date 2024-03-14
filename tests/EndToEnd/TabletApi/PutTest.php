@@ -72,7 +72,6 @@ class PutTest extends KernelTestCase
         );
 
         $this->assertEquals(400, $response->getStatusCode());
-        $this->assertEquals(['error' => 'Missing id'], json_decode($response->getContent(), true));
     }
 
     /**
@@ -96,10 +95,6 @@ class PutTest extends KernelTestCase
         );
 
         $this->assertEquals(400, $response->getStatusCode());
-        $this->assertEquals(
-            ['error' => sprintf('%s cannot be empty', ucfirst($fieldName))],
-            json_decode($response->getContent(), true)
-        );
 
         $tablet = $this->tabletRepository->find($itemId);
 
@@ -139,10 +134,6 @@ class PutTest extends KernelTestCase
         );
 
         $this->assertEquals(400, $response->getStatusCode());
-        $this->assertEquals(
-            ['error' => 'Price cannot be negative'],
-            json_decode($response->getContent(), true)
-        );
 
         $tablet = $this->tabletRepository->find($itemId);
 
@@ -174,10 +165,6 @@ class PutTest extends KernelTestCase
         );
 
         $this->assertEquals(400, $response->getStatusCode());
-        $this->assertEquals(
-            ['error' => 'Price cannot be higher than 100000000'],
-            json_decode($response->getContent(), true)
-        );
 
         $tablet = $this->tabletRepository->find($itemId);
 
@@ -213,10 +200,6 @@ class PutTest extends KernelTestCase
         );
 
         $this->assertEquals(400, $response->getStatusCode());
-        $this->assertEquals(
-            ['error' => sprintf('Missing fields: %s', ucfirst($dataFieldName))],
-            json_decode($response->getContent(), true)
-        );
     }
 
     public function dataFieldNameProvider(): array

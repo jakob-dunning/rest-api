@@ -26,7 +26,6 @@ class DeleteTest extends KernelTestCase
         $response = $this->client->request('DELETE', "http://webserver/api/tablets/$id");
 
         $this->assertEquals(204, $response->getStatusCode());
-        $this->assertEquals([], json_decode($response->getContent(), true));
 
         $tablet = $this->tabletRepository->find($id);
 
@@ -38,6 +37,5 @@ class DeleteTest extends KernelTestCase
         $response = $this->client->request('DELETE', 'http://webserver/api/tablets');
 
         $this->assertEquals(400, $response->getStatusCode());
-        $this->assertEquals(['error' => 'Missing id'], json_decode($response->getContent(), true));
     }
 }

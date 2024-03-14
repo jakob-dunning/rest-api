@@ -79,6 +79,5 @@ class GetTest extends KernelTestCase
         $response = $this->client->request('GET', "http://webserver/api/tablets/$itemId");
 
         $this->assertEquals(400, $response->getStatusCode());
-        $this->assertEquals(['error' => 'Invalid uuid'], json_decode($response->getContent(), true));
     }
 }

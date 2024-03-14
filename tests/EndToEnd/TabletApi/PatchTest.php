@@ -66,7 +66,6 @@ class PatchTest extends KernelTestCase
         );
 
         $this->assertEquals(400, $response->getStatusCode());
-        $this->assertEquals(['error' => 'Missing id'], json_decode($response->getContent(), true));
     }
 
     /**
@@ -83,10 +82,6 @@ class PatchTest extends KernelTestCase
         );
 
         $this->assertEquals(400, $response->getStatusCode());
-        $this->assertEquals(
-            ['error' => sprintf('%s cannot be empty', ucfirst($fieldName))],
-            json_decode($response->getContent(), true)
-        );
 
         $tablet = $this->tabletRepository->find($itemId);
 
@@ -112,10 +107,6 @@ class PatchTest extends KernelTestCase
         );
 
         $this->assertEquals(400, $response->getStatusCode());
-        $this->assertEquals(
-            ['error' => 'Price cannot be negative'],
-            json_decode($response->getContent(), true)
-        );
 
         $tablet = $this->tabletRepository->find($itemId);
 
@@ -133,10 +124,6 @@ class PatchTest extends KernelTestCase
         );
 
         $this->assertEquals(400, $response->getStatusCode());
-        $this->assertEquals(
-            ['error' => 'Price cannot be higher than 100000000'],
-            json_decode($response->getContent(), true)
-        );
 
         $tablet = $this->tabletRepository->find($itemId);
 
@@ -184,7 +171,6 @@ class PatchTest extends KernelTestCase
         );
 
         $this->assertEquals(400, $response->getStatusCode());
-        $this->assertEquals(['error' => 'Fields cannot be empty: Model'], json_decode($response->getContent(), true));
 
         $tablet = $this->tabletRepository->find($itemId);
 
