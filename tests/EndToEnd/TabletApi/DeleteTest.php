@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\EndToEnd;
+namespace EndToEnd\TabletApi;
 
 use App\Repository\TabletRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -12,10 +12,8 @@ class DeleteTest extends KernelTestCase
     private HttpClientInterface $client;
     private TabletRepository $tabletRepository;
 
-    public function __construct()
+    public function setUp(): void
     {
-        parent::__construct();
-
         self::bootKernel();
         $this->tabletRepository = static::getContainer()->get(TabletRepository::class);
         $this->client = HttpClient::create();
@@ -25,10 +23,10 @@ class DeleteTest extends KernelTestCase
     {
         $id = '44682a67-fa83-4216-9e9d-5ea5dd5bf480';
 
-        $response = $this->client->request('DELETE', "http://webserver/api/v1/tablets/$id");
+        $response = $this->client->request('DELETE', "http://webserver/api/tablets/$id");
 
         $this->assertEquals(204, $response->getStatusCode());
-        $this->assertEquals([], json_decode($response->getContent()));
+        $this->assertEquals([], json_decode($response->getContent(), true));
 
         $tablet = $this->tabletRepository->find($id);
 
@@ -37,9 +35,9 @@ class DeleteTest extends KernelTestCase
 
     public function testDeleteItemFailsWithMissingId()
     {
-        $response = $this->client->request('DELETE', 'http://webserver/api/v1/tablets');
+        $response = $this->client->request('DELETE', 'http://webserver/api/tablets');
 
         $this->assertEquals(400, $response->getStatusCode());
-        $this->assertEquals(['error' => 'Missing id'], json_decode($response->getContent()));
+        $this->assertEquals(['error' => 'Missing id'], json_decode($response->getContent(), true));
     }
 }

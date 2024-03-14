@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\EndToEnd;
+namespace EndToEnd\TabletApi;
 
 use App\Repository\TabletRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -13,10 +13,8 @@ class PostTest extends KernelTestCase
     private HttpClientInterface $client;
     private TabletRepository $tabletRepository;
 
-    public function __construct()
+    public function setUp(): void
     {
-        parent::__construct();
-
         self::bootKernel();
         $this->tabletRepository = static::getContainer()->get(TabletRepository::class);
         $this->client = HttpClient::create();
@@ -34,12 +32,12 @@ class PostTest extends KernelTestCase
 
         $response = $this->client->request(
             'POST',
-            "http://webserver/api/v1/tablets",
+            "http://webserver/api/tablets",
             ['json' => $newItem]
         );
 
         $this->assertEquals(201, $response->getStatusCode());
-        $this->assertEquals(["http://webserver/api/v1/tablets/$newItemId"], json_decode($response->getContent()));
+        $this->assertEquals(["http://webserver/api/tablets/$newItemId"], json_decode($response->getContent(), true));
 
         $tablet = $this->tabletRepository->find($newItemId);
 
@@ -50,7 +48,7 @@ class PostTest extends KernelTestCase
     {
         $response = $this->client->request(
             'POST',
-            "http://webserver/api/v1/tablets",
+            "http://webserver/api/tablets",
             [
                 'json' => [
                     'id' => 'abcde',
@@ -62,7 +60,7 @@ class PostTest extends KernelTestCase
         );
 
         $this->assertEquals(400, $response->getStatusCode());
-        $this->assertEquals(['error' => 'Id is invalid uuid v4'], json_decode($response->getContent()));
+        $this->assertEquals(['error' => 'Id is invalid uuid v4'], json_decode($response->getContent(), true));
     }
 
     /**
@@ -81,14 +79,14 @@ class PostTest extends KernelTestCase
 
         $response = $this->client->request(
             'POST',
-            "http://webserver/api/v1/tablets",
+            "http://webserver/api/tablets",
             ['json' => $newItem]
         );
 
         $this->assertEquals(400, $response->getStatusCode());
         $this->assertEquals(
             ['error' => sprintf('%s cannot be empty', ucfirst($fieldName))],
-            json_decode($response->getContent())
+            json_decode($response->getContent(), true)
         );
 
         $tablet = $this->tabletRepository->find($newItemId);
@@ -108,7 +106,7 @@ class PostTest extends KernelTestCase
     {
         $newItemId = Uuid::v4();
 
-        $response = $this->client->request('POST', "http://webserver/api/v1/tablets", [
+        $response = $this->client->request('POST', "http://webserver/api/tablets", [
             'json' => [
                 'id' => $newItemId,
                 'manufacturer' => 'Xiaomi',
@@ -118,7 +116,28 @@ class PostTest extends KernelTestCase
         ]);
 
         $this->assertEquals(400, $response->getStatusCode());
-        $this->assertEquals(['error' => 'Price cannot be negative'], json_decode($response->getContent()));
+        $this->assertEquals(['error' => 'Price cannot be negative'], json_decode($response->getContent(), true));
+
+        $tablet = $this->tabletRepository->find($newItemId);
+
+        $this->assertNull($tablet);
+    }
+
+    public function testPostFailsWithRidiculouslyHighPrice()
+    {
+        $newItemId = Uuid::v4();
+
+        $response = $this->client->request('POST', "http://webserver/api/tablets", [
+            'json' => [
+                'id' => $newItemId,
+                'manufacturer' => 'Xiaomi',
+                'model' => 'Redmi Pad SE',
+                'price' => 100000000
+            ]
+        ]);
+
+        $this->assertEquals(400, $response->getStatusCode());
+        $this->assertEquals(['error' => 'Price cannot be higher than 100000000'], json_decode($response->getContent(), true));
 
         $tablet = $this->tabletRepository->find($newItemId);
 
@@ -142,14 +161,14 @@ class PostTest extends KernelTestCase
 
         $response = $this->client->request(
             'POST',
-            "http://webserver/api/v1/tablets",
+            "http://webserver/api/tablets",
             ['json' => $newItem]
         );
 
         $this->assertEquals(400, $response->getStatusCode());
         $this->assertEquals(
             ['error' => sprintf('Missing fields: %s', ucfirst($dataFieldName))],
-            json_decode($response->getContent())
+            json_decode($response->getContent(), true)
         );
 
         $tablet = $this->tabletRepository->find($newItemId);
@@ -160,9 +179,9 @@ class PostTest extends KernelTestCase
     public function dataFieldNameProvider(): array
     {
         return [
-            'manufacturer',
-            'model',
-            'price',
+            ['manufacturer'],
+            ['model'],
+            ['price'],
         ];
     }
 }

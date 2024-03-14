@@ -8,10 +8,10 @@ use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\UuidV4;
 
 #[ORM\Entity(repositoryClass: TabletRepository::class)]
-class Tablet
+class Tablet implements \JsonSerializable
 {
     #[ORM\Id]
-    #[ORM\Column(type:UuidType::NAME)]
+    #[ORM\Column(type: UuidType::NAME)]
     private ?UuidV4 $id = null;
 
     #[ORM\Column(length: 255)]
@@ -79,5 +79,10 @@ class Tablet
             'model' => $this->model,
             'price' => $this->price,
         ];
+    }
+
+    public function jsonSerialize(): array
+    {
+        return $this->toArray();
     }
 }

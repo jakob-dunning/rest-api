@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\EndToEnd;
+namespace EndToEnd\TabletApi;
 
 use App\Repository\TabletRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -12,10 +12,8 @@ class PatchTest extends KernelTestCase
     private HttpClientInterface $client;
     private TabletRepository $tabletRepository;
 
-    public function __construct()
+    public function setUp(): void
     {
-        parent::__construct();
-
         self::bootKernel();
         $this->tabletRepository = static::getContainer()->get(TabletRepository::class);
         $this->client = HttpClient::create();
@@ -30,7 +28,7 @@ class PatchTest extends KernelTestCase
 
         $response = $this->client->request(
             'PATCH',
-            "http://webserver/api/v1/tablets/$itemId",
+            "http://webserver/api/tablets/$itemId",
             ['json' => [$fieldName => $fieldValue,]]
         );
 
@@ -43,7 +41,7 @@ class PatchTest extends KernelTestCase
         $expectedItem[$fieldName] = $fieldValue;
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals([$expectedItem], json_decode($response->getContent()));
+        $this->assertEquals([$expectedItem], json_decode($response->getContent(), true));
 
         $tablet = $this->tabletRepository->find($itemId);
 
@@ -63,12 +61,12 @@ class PatchTest extends KernelTestCase
     {
         $response = $this->client->request(
             'PATCH',
-            'http://webserver/api/v1/tablets',
+            'http://webserver/api/tablets',
             ['json' => ['manufacturer' => 'Asus',]]
         );
 
         $this->assertEquals(400, $response->getStatusCode());
-        $this->assertEquals(['error' => 'Missing id'], json_decode($response->getContent()));
+        $this->assertEquals(['error' => 'Missing id'], json_decode($response->getContent(), true));
     }
 
     /**
@@ -80,14 +78,14 @@ class PatchTest extends KernelTestCase
 
         $response = $this->client->request(
             'PATCH',
-            "http://webserver/api/v1/tablets/$itemId",
+            "http://webserver/api/tablets/$itemId",
             ['json' => [$fieldName => '',]]
         );
 
         $this->assertEquals(400, $response->getStatusCode());
         $this->assertEquals(
             ['error' => sprintf('%s cannot be empty', ucfirst($fieldName))],
-            json_decode($response->getContent())
+            json_decode($response->getContent(), true)
         );
 
         $tablet = $this->tabletRepository->find($itemId);
@@ -98,8 +96,8 @@ class PatchTest extends KernelTestCase
     public function stringFieldNameProvider(): array
     {
         return [
-            'manufacturer',
-            'model',
+            ['manufacturer'],
+            ['model']
         ];
     }
 
@@ -109,14 +107,35 @@ class PatchTest extends KernelTestCase
 
         $response = $this->client->request(
             'PATCH',
-            "http://webserver/api/v1/tablets/$itemId",
+            "http://webserver/api/tablets/$itemId",
             ['json' => ['price' => -8000,]]
         );
 
         $this->assertEquals(400, $response->getStatusCode());
         $this->assertEquals(
             ['error' => 'Price cannot be negative'],
-            json_decode($response->getContent())
+            json_decode($response->getContent(), true)
+        );
+
+        $tablet = $this->tabletRepository->find($itemId);
+
+        $this->assertEquals(3110, $tablet->toArray()['price']);
+    }
+
+    public function testPatchFailsWithRidiculouslyHighPrice()
+    {
+        $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
+
+        $response = $this->client->request(
+            'PATCH',
+            "http://webserver/api/tablets/$itemId",
+            ['json' => ['price' => 100000000,]]
+        );
+
+        $this->assertEquals(400, $response->getStatusCode());
+        $this->assertEquals(
+            ['error' => 'Price cannot be higher than 100000000'],
+            json_decode($response->getContent(), true)
         );
 
         $tablet = $this->tabletRepository->find($itemId);
@@ -132,7 +151,7 @@ class PatchTest extends KernelTestCase
 
         $response = $this->client->request(
             'PATCH',
-            "http://webserver/api/v1/tablets/$itemId",
+            "http://webserver/api/tablets/$itemId",
             ['json' => ['manufacturer' => $newManufacturer, 'model' => $newModel,]]
         );
 
@@ -144,7 +163,7 @@ class PatchTest extends KernelTestCase
                 'model' => $newModel,
                 'price' => 24799,
             ]
-        ], json_decode($response->getContent()));
+        ], json_decode($response->getContent(), true));
 
         $tablet = $this->tabletRepository->find($itemId);
 
@@ -160,12 +179,12 @@ class PatchTest extends KernelTestCase
 
         $response = $this->client->request(
             'PATCH',
-            "http://webserver/api/v1/tablets/$itemId",
+            "http://webserver/api/tablets/$itemId",
             ['json' => ['manufacturer' => $newManufacturer, 'model' => $newModel,]]
         );
 
         $this->assertEquals(400, $response->getStatusCode());
-        $this->assertEquals(['error' => 'Fields cannot be empty: Model'], json_decode($response->getContent()));
+        $this->assertEquals(['error' => 'Fields cannot be empty: Model'], json_decode($response->getContent(), true));
 
         $tablet = $this->tabletRepository->find($itemId);
 

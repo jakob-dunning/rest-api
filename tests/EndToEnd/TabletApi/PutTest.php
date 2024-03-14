@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\EndToEnd;
+namespace EndToEnd\TabletApi;
 
 use App\Repository\TabletRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -12,10 +12,8 @@ class PutTest extends KernelTestCase
     private HttpClientInterface $client;
     private TabletRepository $tabletRepository;
 
-    public function __construct()
+    public function setUp(): void
     {
-        parent::__construct();
-
         self::bootKernel();
         $this->tabletRepository = static::getContainer()->get(TabletRepository::class);
         $this->client = HttpClient::create();
@@ -24,7 +22,7 @@ class PutTest extends KernelTestCase
     /**
      * @dataProvider dataFieldProvider
      */
-    public function testPutModifiesDataField(string $fieldName, string $fieldValue)
+    public function testPutModifiesDataField(string $fieldName, string|int $fieldValue)
     {
         $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
 
@@ -38,12 +36,12 @@ class PutTest extends KernelTestCase
 
         $response = $this->client->request(
             'PUT',
-            "http://webserver/api/v1/tablets/$itemId",
+            "http://webserver/api/tablets/$itemId",
             ['json' => $modifiedItem]
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals([$modifiedItem], json_decode($response->getContent()));
+        $this->assertEquals([$modifiedItem], json_decode($response->getContent(), true));
 
         $tablet = $this->tabletRepository->find($itemId);
 
@@ -63,7 +61,7 @@ class PutTest extends KernelTestCase
     {
         $response = $this->client->request(
             'PUT',
-            'http://webserver/api/v1/tablets',
+            'http://webserver/api/tablets',
             [
                 'json' => [
                     'manufacturer' => 'Xiaomi',
@@ -74,7 +72,7 @@ class PutTest extends KernelTestCase
         );
 
         $this->assertEquals(400, $response->getStatusCode());
-        $this->assertEquals(['error' => 'Missing id'], json_decode($response->getContent()));
+        $this->assertEquals(['error' => 'Missing id'], json_decode($response->getContent(), true));
     }
 
     /**
@@ -93,14 +91,14 @@ class PutTest extends KernelTestCase
 
         $response = $this->client->request(
             'PUT',
-            "http://webserver/api/v1/tablets/$itemId",
+            "http://webserver/api/tablets/$itemId",
             ['json' => $modifiedItem]
         );
 
         $this->assertEquals(400, $response->getStatusCode());
         $this->assertEquals(
             ['error' => sprintf('%s cannot be empty', ucfirst($fieldName))],
-            json_decode($response->getContent())
+            json_decode($response->getContent(), true)
         );
 
         $tablet = $this->tabletRepository->find($itemId);
@@ -124,7 +122,7 @@ class PutTest extends KernelTestCase
         ];
     }
 
-    public function testPutFailsWithNegativePrice(string $fieldName)
+    public function testPutFailsWithNegativePrice()
     {
         $itemId = '44682a67-fa83-4216-9e9d-5ea5dd5bf480';
 
@@ -136,14 +134,49 @@ class PutTest extends KernelTestCase
 
         $response = $this->client->request(
             'PUT',
-            "http://webserver/api/v1/tablets/$itemId",
+            "http://webserver/api/tablets/$itemId",
             ['json' => $modifiedItem]
         );
 
         $this->assertEquals(400, $response->getStatusCode());
         $this->assertEquals(
             ['error' => 'Price cannot be negative'],
-            json_decode($response->getContent())
+            json_decode($response->getContent(), true)
+        );
+
+        $tablet = $this->tabletRepository->find($itemId);
+
+        $this->assertEquals(
+            [
+                'id' => $itemId,
+                'manufacturer' => 'Lenovo',
+                'model' => 'Tab M9',
+                'price' => 19900
+            ],
+            $tablet->toArray()
+        );
+    }
+
+    public function testPutFailsWithRidiculouslyHighPrice()
+    {
+        $itemId = '44682a67-fa83-4216-9e9d-5ea5dd5bf480';
+
+        $modifiedItem = [
+            'manufacturer' => 'Lenovo',
+            'model' => 'Tab M9',
+            'price' => 100000000
+        ];
+
+        $response = $this->client->request(
+            'PUT',
+            "http://webserver/api/tablets/$itemId",
+            ['json' => $modifiedItem]
+        );
+
+        $this->assertEquals(400, $response->getStatusCode());
+        $this->assertEquals(
+            ['error' => 'Price cannot be higher than 100000000'],
+            json_decode($response->getContent(), true)
         );
 
         $tablet = $this->tabletRepository->find($itemId);
@@ -175,23 +208,23 @@ class PutTest extends KernelTestCase
 
         $response = $this->client->request(
             'PUT',
-            "http://webserver/api/v1/tablets/$itemId",
+            "http://webserver/api/tablets/$itemId",
             ['json' => $modifiedItem]
         );
 
         $this->assertEquals(400, $response->getStatusCode());
         $this->assertEquals(
             ['error' => sprintf('Missing fields: %s', ucfirst($dataFieldName))],
-            json_decode($response->getContent())
+            json_decode($response->getContent(), true)
         );
     }
 
     public function dataFieldNameProvider(): array
     {
         return [
-            'manufacturer',
-            'model',
-            'price',
+            ['manufacturer'],
+            ['model'],
+            ['price']
         ];
     }
 }
