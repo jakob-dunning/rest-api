@@ -21,3 +21,4 @@ It must be possible to:
 - Use seaparate database for tests
 - Add githook to run phpstan and phpcs on commit
 - Remove hardcoded url for webserver from end-to-end tests
+- Add validation and error-handling to routes
