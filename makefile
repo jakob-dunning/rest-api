@@ -5,7 +5,8 @@ stop:
 	docker-compose stop
 
 test:
-	docker-compose exec php vendor/bin/phpunit
+	docker-compose exec php bin/console doctrine:fixtures:load --env=test -n
+	docker-compose exec php bin/phpunit
 
 phpstan:
 	docker-compose exec php vendor/bin/phpstan

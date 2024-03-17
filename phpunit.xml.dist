@@ -6,7 +6,6 @@
          backupGlobals="false"
          colors="true"
          bootstrap="tests/bootstrap.php"
-         convertDeprecationsToExceptions="true"
          forceCoversAnnotation="true"
          failOnIncomplete="true"
          failOnRisky="true"
@@ -16,6 +15,7 @@
          beStrictAboutOutputDuringTests="true"
          beStrictAboutTestsThatDoNotTestAnything="true"
          beStrictAboutTodoAnnotatedTests="true"
+         convertDeprecationsToExceptions="true"
          beStrictAboutCoversAnnotation="true"
 >
     <php>
@@ -28,8 +28,8 @@
     </php>
 
     <testsuites>
-        <testsuite name="end-to-end">
-            <directory>tests/EndToEnd</directory>
+        <testsuite name="Api">
+            <directory>tests/Api</directory>
         </testsuite>
     </testsuites>
 

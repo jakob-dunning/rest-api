@@ -13,8 +13,9 @@ services:
       - "9000"
     volumes:
       - "$PWD:/var/www/html"
-    environment:
-      - "XDEBUG_MODE=coverage"
+      - "$PWD/docker/php/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini"
+    extra_hosts:
+      - host.docker.internal:host-gateway
   database:
     image: postgres:16.2-alpine
     ports:

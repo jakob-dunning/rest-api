@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Dto\TabletDto;
 use App\Repository\TabletRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Types\UuidType;
@@ -10,32 +11,48 @@ use Symfony\Component\Uid\UuidV4;
 #[ORM\Entity(repositoryClass: TabletRepository::class)]
 class Tablet implements \JsonSerializable
 {
-    #[ORM\Id]
-    #[ORM\Column(type: UuidType::NAME)]
-    private ?UuidV4 $id = null;
+    private function __construct(
+        #[ORM\Id]
+        #[ORM\Column(type: UuidType::NAME)]
+        private UuidV4 $id,
+        #[ORM\Column(length: 255)]
+        private string $manufacturer,
+        #[ORM\Column(length: 255)]
+        private string $model,
+        #[ORM\Column]
+        private int $price
+    ) {
+    }
 
-    #[ORM\Column(length: 255)]
-    private ?string $manufacturer = null;
+    public static function fromDto(TabletDto $tabletDto): self
+    {
+        return new self(
+            UuidV4::fromString($tabletDto->id),
+            $tabletDto->manufacturer,
+            $tabletDto->model,
+            $tabletDto->price
+        );
+    }
 
-    #[ORM\Column(length: 255)]
-    private ?string $model = null;
+    /**
+     * @param array<UuidV4|string|int> $values
+     */
+    public static function fromArray(array $values): self
+    {
+        return new self(
+            UuidV4::fromString($values['id']),
+            $values['manufacturer'],
+            $values['model'],
+            $values['price']
+        );
+    }
 
-    #[ORM\Column]
-    private ?int $price = null;
-
-    public function getId(): ?UuidV4
+    public function getId(): UuidV4
     {
         return $this->id;
     }
 
-    public function setId(UuidV4 $id): static
-    {
-        $this->id = $id;
-
-        return $this;
-    }
-
-    public function getManufacturer(): ?string
+    public function getManufacturer(): string
     {
         return $this->manufacturer;
     }
@@ -47,7 +64,7 @@ class Tablet implements \JsonSerializable
         return $this;
     }
 
-    public function getModel(): ?string
+    public function getModel(): string
     {
         return $this->model;
     }
@@ -71,18 +88,32 @@ class Tablet implements \JsonSerializable
         return $this;
     }
 
-    public function toArray(): array
+    /**
+     * @return array<string|int>
+     */
+    public function toScalarArray(): array
     {
         return [
-            'id' => $this->id,
+            'id' => $this->id->toRfc4122(),
             'manufacturer' => $this->manufacturer,
             'model' => $this->model,
             'price' => $this->price,
         ];
     }
 
+    /**
+     * @return array<string|int>
+     */
     public function jsonSerialize(): array
     {
-        return $this->toArray();
+        return $this->toScalarArray();
+    }
+
+    public function mergeWithDto(TabletDto $tabletDto): void
+    {
+        $this->id = $tabletDto->id;
+        $this->manufacturer = $tabletDto->manufacturer;
+        $this->model = $tabletDto->model;
+        $this->price = $tabletDto->price;
     }
 }

@@ -17,9 +17,13 @@ It must be possible to:
 - Add versioning to the API
 - Add authorization features to the API
 - Serve API though HTTPS only
-- Keep .env out of GIT repository, add instructions to set up, create make setup target
-- Use seaparate database for tests
-- Add githook to run phpstan and phpcs on commit
-- Remove hardcoded url for webserver from end-to-end tests
+- Add make setup target
+- Add documentation
+- Add githook to run phpstan and phpcbf on commit
+- Remove hardcoded url for webserver from api tests
 - Add validation and error-handling to routes (https://jsonapi.org/format/#error-objects)
 - Sanitize output to prevent corruption
+- Adher to JSON:API standards
+
+## References
+- https://levelup.gitconnected.com/how-to-properly-handle-requests-with-symfony-6-3-0bfc8d7726a9
