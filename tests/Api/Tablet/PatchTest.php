@@ -177,7 +177,6 @@ class PatchTest extends WebTestCase
         $this->assertFalse(key_exists('data', $responseContentAsArray));
 
         $tablet = $this->getContainer()->get(TabletRepository::class)->find($itemId);
-
         $this->assertEquals(3110, $tablet->getPrice());
     }
 
