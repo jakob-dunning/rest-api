@@ -76,7 +76,11 @@ class GetTest extends WebTestCase
         $itemId = 'abcde';
         $client->jsonRequest('GET', "http://webserver/api/tablets/$itemId");
 
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
+        $this->assertTrue(key_exists('errors', $responseContentAsArray));
+        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
+        $this->assertFalse(key_exists('data', $responseContentAsArray));
     }
 
     /**
@@ -89,6 +93,10 @@ class GetTest extends WebTestCase
         $itemId = '66a5c0d8-4289-43ba-941a-e235f722c438';
         $client->jsonRequest('GET', "http://webserver/api/tablets/$itemId");
 
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
+        $this->assertTrue(key_exists('errors', $responseContentAsArray));
+        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
+        $this->assertFalse(key_exists('data', $responseContentAsArray));
     }
 }

@@ -30,7 +30,11 @@ class DeleteTest extends WebTestCase
         $client = $this->createClient();
         $client->request('DELETE', 'http://webserver/api/tablets/');
 
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
+        $this->assertTrue(key_exists('errors', $responseContentAsArray));
+        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
+        $this->assertFalse(key_exists('data', $responseContentAsArray));
     }
 
     /** @covers \App\EventSubscriber\HttpNotFoundEventSubscriber */
@@ -39,7 +43,11 @@ class DeleteTest extends WebTestCase
         $client = $this->createClient();
         $client->jsonRequest('DELETE', 'http://webserver/api/tablets/abcdefg');
 
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
+        $this->assertTrue(key_exists('errors', $responseContentAsArray));
+        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
+        $this->assertFalse(key_exists('data', $responseContentAsArray));
     }
 
     /** @covers \App\EventSubscriber\HttpNotFoundEventSubscriber */
@@ -48,6 +56,10 @@ class DeleteTest extends WebTestCase
         $client = $this->createClient();
         $client->jsonRequest('DELETE', 'http://webserver/api/tablets/649b05de-00b4-4fb7-8d64-113c1806c9a7');
 
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
+        $this->assertTrue(key_exists('errors', $responseContentAsArray));
+        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
+        $this->assertFalse(key_exists('data', $responseContentAsArray));
     }
 }

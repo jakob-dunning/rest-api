@@ -61,7 +61,11 @@ class PostTest extends WebTestCase
             ]
         );
 
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertTrue(key_exists('errors', $responseContentAsArray));
+        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
+        $this->assertFalse(key_exists('data', $responseContentAsArray));
     }
 
     /**
@@ -86,7 +90,11 @@ class PostTest extends WebTestCase
             $newItem
         );
 
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertTrue(key_exists('errors', $responseContentAsArray));
+        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
+        $this->assertFalse(key_exists('data', $responseContentAsArray));
 
         $tablet = $this->getContainer()->get(TabletRepository::class)->find($newItemId);
 
@@ -119,7 +127,11 @@ class PostTest extends WebTestCase
             'price' => -7000
         ]);
 
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertTrue(key_exists('errors', $responseContentAsArray));
+        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
+        $this->assertFalse(key_exists('data', $responseContentAsArray));
 
         $tablet = $this->getContainer()->get(TabletRepository::class)->find($newItemId);
 
@@ -141,7 +153,11 @@ class PostTest extends WebTestCase
             'price' => 100000000
         ]);
 
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertTrue(key_exists('errors', $responseContentAsArray));
+        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
+        $this->assertFalse(key_exists('data', $responseContentAsArray));
 
         $tablet = $this->getContainer()->get(TabletRepository::class)->find($newItemId);
 
@@ -170,7 +186,11 @@ class PostTest extends WebTestCase
             $newItem
         );
 
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertTrue(key_exists('errors', $responseContentAsArray));
+        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
+        $this->assertFalse(key_exists('data', $responseContentAsArray));
 
         $tablet = $this->getContainer()->get(TabletRepository::class)->find($newItemId);
 
@@ -193,7 +213,11 @@ class PostTest extends WebTestCase
             "{'id':'$newItemId','manufacturer':'xiaomi','model':'Redmi Note 4','price':9999}"
         );
 
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertTrue(key_exists('errors', $responseContentAsArray));
+        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
+        $this->assertFalse(key_exists('data', $responseContentAsArray));
 
         $tablet = $this->getContainer()->get(TabletRepository::class)->find($newItemId);
 

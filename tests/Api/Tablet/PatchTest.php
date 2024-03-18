@@ -67,7 +67,11 @@ class PatchTest extends WebTestCase
             ['manufacturer' => 'Asus',]
         );
 
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
+        $this->assertTrue(key_exists('errors', $responseContentAsArray));
+        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
+        $this->assertFalse(key_exists('data', $responseContentAsArray));
     }
 
     /**
@@ -89,7 +93,11 @@ class PatchTest extends WebTestCase
 
         $tablet = $this->getContainer()->get(TabletRepository::class)->find($itemId);
 
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertNotEquals('', $tablet->toScalarArray()[$fieldName]);
+        $this->assertTrue(key_exists('errors', $responseContentAsArray));
+        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
+        $this->assertFalse(key_exists('data', $responseContentAsArray));
     }
 
     /**
@@ -117,7 +125,11 @@ class PatchTest extends WebTestCase
             ['unknownProperty' => '',]
         );
 
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertTrue(key_exists('errors', $responseContentAsArray));
+        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
+        $this->assertFalse(key_exists('data', $responseContentAsArray));
     }
 
     public function testUpdateIdFails(): void
@@ -135,7 +147,11 @@ class PatchTest extends WebTestCase
         /* @var \App\Entity\Tablet $tablet */
         $tablet = $this->getContainer()->get(TabletRepository::class)->find($itemId);
 
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals($itemId, $tablet->getId());
+        $this->assertTrue(key_exists('errors', $responseContentAsArray));
+        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
+        $this->assertFalse(key_exists('data', $responseContentAsArray));
     }
 
     /**
@@ -152,7 +168,11 @@ class PatchTest extends WebTestCase
             ['price' => -8000,]
         );
 
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertTrue(key_exists('errors', $responseContentAsArray));
+        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
+        $this->assertFalse(key_exists('data', $responseContentAsArray));
 
         $tablet = $this->getContainer()->get(TabletRepository::class)->find($itemId);
 
@@ -173,7 +193,11 @@ class PatchTest extends WebTestCase
             ['price' => 100000000,]
         );
 
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertTrue(key_exists('errors', $responseContentAsArray));
+        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
+        $this->assertFalse(key_exists('data', $responseContentAsArray));
 
         $tablet = $this->getContainer()->get(TabletRepository::class)->find($itemId);
 
@@ -196,7 +220,11 @@ class PatchTest extends WebTestCase
             "{'manufacturer':'xiaomi','model':'Redmi Note 4','price':9999}"
         );
 
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertTrue(key_exists('errors', $responseContentAsArray));
+        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
+        $this->assertFalse(key_exists('data', $responseContentAsArray));
 
         $tablet = $this->getContainer()->get(TabletRepository::class)->find($itemId);
 
@@ -251,7 +279,11 @@ class PatchTest extends WebTestCase
             ['manufacturer' => $newManufacturer, 'model' => $newModel,]
         );
 
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertTrue(key_exists('errors', $responseContentAsArray));
+        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
+        $this->assertFalse(key_exists('data', $responseContentAsArray));
 
         $tablet = $this->getContainer()->get(TabletRepository::class)->find($itemId);
 
