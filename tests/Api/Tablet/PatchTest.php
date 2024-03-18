@@ -20,14 +20,14 @@ class PatchTest extends WebTestCase
      * @covers       \App\Dto\TabletDto
      * @covers       \App\Entity\Tablet
      */
-    public function testUpdateProperty(string $fieldName, string|int $fieldValue): void
+    public function testUpdateProperty(string $propertyName, string|int $propertyValue): void
     {
         $client = $this->createClient();
         $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
             Request::METHOD_PATCH,
             "http://webserver/api/tablets/$itemId",
-            [$fieldName => $fieldValue]
+            [$propertyName => $propertyValue]
         );
 
         $expectedItem = [
@@ -36,7 +36,7 @@ class PatchTest extends WebTestCase
             'model' => 'MeMO Pad HD 7',
             'price' => 3110,
         ];
-        $expectedItem[$fieldName] = $fieldValue;
+        $expectedItem[$propertyName] = $propertyValue;
 
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
         $this->assertEquals(['data' => $expectedItem], json_decode($client->getResponse()->getContent(), true));
@@ -81,14 +81,14 @@ class PatchTest extends WebTestCase
      * @covers       \App\EventSubscriber\PayloadFailedValidationEventSubscriber
      * @covers       \App\Dto\TabletDto
      */
-    public function testUpdatePropertyFailsWithEmptyStringProperty(string $fieldName): void
+    public function testUpdatePropertyFailsWithEmptyStringProperty(string $propertyName): void
     {
         $client = $this->createClient();
         $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
             Request::METHOD_PATCH,
             "http://webserver/api/tablets/$itemId",
-            [$fieldName => '',]
+            [$propertyName => '',]
         );
 
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
@@ -96,7 +96,7 @@ class PatchTest extends WebTestCase
         $tablet = $this->getContainer()->get(TabletRepository::class)->find($itemId);
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
-        $this->assertNotEquals('', $tablet->toScalarArray()[$fieldName]);
+        $this->assertNotEquals('', $tablet->toScalarArray()[$propertyName]);
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));

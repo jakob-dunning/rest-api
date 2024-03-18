@@ -75,7 +75,7 @@ class PostTest extends WebTestCase
      * @covers       \App\EventSubscriber\PayloadFailedValidationEventSubscriber
      * @covers       \App\Dto\TabletDto
      */
-    public function testCreateNewItemFailsWithEmptyStringProperty(string $fieldName): void
+    public function testCreateNewItemFailsWithEmptyStringProperty(string $propertyName): void
     {
         $client = $this->createClient();
         $newItemId = Uuid::v4();
@@ -85,7 +85,7 @@ class PostTest extends WebTestCase
             'model' => 'Redmi Pad SE',
             'price' => 19799
         ];
-        $newItem[$fieldName] = '';
+        $newItem[$propertyName] = '';
         $client->jsonRequest(
             Request::METHOD_POST,
             "http://webserver/api/tablets",
