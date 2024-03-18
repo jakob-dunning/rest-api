@@ -4,6 +4,8 @@ namespace Api\Tablet;
 
 use App\Repository\TabletRepository;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Uid\Uuid;
 
 /**
@@ -27,12 +29,12 @@ class PostTest extends WebTestCase
             'price' => 19799
         ];
         $client->jsonRequest(
-            'POST',
+            Request::METHOD_POST,
             "http://webserver/api/tablets",
             $newItem
         );
 
-        $this->assertEquals(201, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_CREATED, $client->getResponse()->getStatusCode());
         $this->assertEquals(
             ['data' => "http://localhost/api/tablets/$newItemId"],
             json_decode($client->getResponse()->getContent(), true)
@@ -51,7 +53,7 @@ class PostTest extends WebTestCase
     {
         $client = $this->createClient();
         $client->jsonRequest(
-            'POST',
+            Request::METHOD_POST,
             "http://webserver/api/tablets",
             [
                 'id' => 'abcde',
@@ -62,7 +64,7 @@ class PostTest extends WebTestCase
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
@@ -85,13 +87,13 @@ class PostTest extends WebTestCase
         ];
         $newItem[$fieldName] = '';
         $client->jsonRequest(
-            'POST',
+            Request::METHOD_POST,
             "http://webserver/api/tablets",
             $newItem
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
@@ -120,7 +122,7 @@ class PostTest extends WebTestCase
     {
         $client = $this->createClient();
         $newItemId = Uuid::v4();
-        $client->jsonRequest('POST', "http://webserver/api/tablets", [
+        $client->jsonRequest(Request::METHOD_POST, "http://webserver/api/tablets", [
             'id' => $newItemId,
             'manufacturer' => 'Xiaomi',
             'model' => 'Redmi Pad SE',
@@ -128,7 +130,7 @@ class PostTest extends WebTestCase
         ]);
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
@@ -146,7 +148,7 @@ class PostTest extends WebTestCase
     {
         $client = $this->createClient();
         $newItemId = Uuid::v4();
-        $client->jsonRequest('POST', "http://webserver/api/tablets", [
+        $client->jsonRequest(Request::METHOD_POST, "http://webserver/api/tablets", [
             'id' => $newItemId,
             'manufacturer' => 'Xiaomi',
             'model' => 'Redmi Pad SE',
@@ -154,7 +156,7 @@ class PostTest extends WebTestCase
         ]);
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
@@ -181,13 +183,13 @@ class PostTest extends WebTestCase
         ];
         unset($newItem[$propertyName]);
         $client->jsonRequest(
-            'POST',
+            Request::METHOD_POST,
             "http://webserver/api/tablets",
             $newItem
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
@@ -205,7 +207,7 @@ class PostTest extends WebTestCase
         $client = $this->createClient();
         $newItemId = Uuid::v4();
         $client->request(
-            'POST',
+            Request::METHOD_POST,
             "http://webserver/api/tablets",
             [],
             [],
@@ -214,7 +216,7 @@ class PostTest extends WebTestCase
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));

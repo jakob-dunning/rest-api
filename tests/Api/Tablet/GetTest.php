@@ -3,6 +3,8 @@
 namespace Tests\Api\Tablet;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class GetTest extends WebTestCase
 {
@@ -13,9 +15,9 @@ class GetTest extends WebTestCase
     public function testShowAllItems(): void
     {
         $client = $this->createClient();
-        $client->jsonRequest('GET', 'http://webserver/api/tablets');
+        $client->jsonRequest(Request::METHOD_GET, 'http://webserver/api/tablets');
 
-        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
         $this->assertEqualsCanonicalizing(
             [
                 'data' => [
@@ -50,9 +52,9 @@ class GetTest extends WebTestCase
     {
         $client = $this->createClient();
         $itemId = '44682a67-fa83-4216-9e9d-5ea5dd5bf480';
-        $client->jsonRequest('GET', "http://webserver/api/tablets/$itemId");
+        $client->jsonRequest(Request::METHOD_GET, "http://webserver/api/tablets/$itemId");
 
-        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
         $this->assertEquals(
             [
                 'data' => [
@@ -74,10 +76,10 @@ class GetTest extends WebTestCase
     {
         $client = $this->createClient();
         $itemId = 'abcde';
-        $client->jsonRequest('GET', "http://webserver/api/tablets/$itemId");
+        $client->jsonRequest(Request::METHOD_GET, "http://webserver/api/tablets/$itemId");
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals(404, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
@@ -91,10 +93,10 @@ class GetTest extends WebTestCase
     {
         $client = $this->createClient();
         $itemId = '66a5c0d8-4289-43ba-941a-e235f722c438';
-        $client->jsonRequest('GET', "http://webserver/api/tablets/$itemId");
+        $client->jsonRequest(Request::METHOD_GET, "http://webserver/api/tablets/$itemId");
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals(404, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));

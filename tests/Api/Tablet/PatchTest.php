@@ -4,6 +4,8 @@ namespace Tests\Api\Tablet;
 
 use App\Repository\TabletRepository;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Uid\Uuid;
 
 /**
@@ -23,7 +25,7 @@ class PatchTest extends WebTestCase
         $client = $this->createClient();
         $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
-            'PATCH',
+            Request::METHOD_PATCH,
             "http://webserver/api/tablets/$itemId",
             [$fieldName => $fieldValue]
         );
@@ -36,7 +38,7 @@ class PatchTest extends WebTestCase
         ];
         $expectedItem[$fieldName] = $fieldValue;
 
-        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
         $this->assertEquals(['data' => $expectedItem], json_decode($client->getResponse()->getContent(), true));
 
         $tablet = $this->getContainer()->get(TabletRepository::class)->find($itemId);
@@ -62,13 +64,13 @@ class PatchTest extends WebTestCase
     {
         $client = $this->createClient();
         $client->jsonRequest(
-            'PATCH',
+            Request::METHOD_PATCH,
             'http://webserver/api/tablets/',
             ['manufacturer' => 'Asus',]
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals(404, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
@@ -84,12 +86,12 @@ class PatchTest extends WebTestCase
         $client = $this->createClient();
         $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
-            'PATCH',
+            Request::METHOD_PATCH,
             "http://webserver/api/tablets/$itemId",
             [$fieldName => '',]
         );
 
-        $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
 
         $tablet = $this->getContainer()->get(TabletRepository::class)->find($itemId);
 
@@ -120,13 +122,13 @@ class PatchTest extends WebTestCase
         $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client = $this->createClient();
         $client->jsonRequest(
-            'PATCH',
+            Request::METHOD_PATCH,
             "http://webserver/api/tablets/$itemId",
             ['unknownProperty' => '',]
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
@@ -137,12 +139,12 @@ class PatchTest extends WebTestCase
         $client = $this->createClient();
         $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
-            'PATCH',
+            Request::METHOD_PATCH,
             "http://webserver/api/tablets/$itemId",
             ['id' => Uuid::v4(),]
         );
 
-        $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
 
         /* @var \App\Entity\Tablet $tablet */
         $tablet = $this->getContainer()->get(TabletRepository::class)->find($itemId);
@@ -163,13 +165,13 @@ class PatchTest extends WebTestCase
         $client = $this->createClient();
         $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
-            'PATCH',
+            Request::METHOD_PATCH,
             "http://webserver/api/tablets/$itemId",
             ['price' => -8000,]
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
@@ -188,13 +190,13 @@ class PatchTest extends WebTestCase
         $client = $this->createClient();
         $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
-            'PATCH',
+            Request::METHOD_PATCH,
             "http://webserver/api/tablets/$itemId",
             ['price' => 100000000,]
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
@@ -212,7 +214,7 @@ class PatchTest extends WebTestCase
         $client = $this->createClient();
         $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->request(
-            'PATCH',
+            Request::METHOD_PATCH,
             "http://webserver/api/tablets/$itemId",
             [],
             [],
@@ -221,7 +223,7 @@ class PatchTest extends WebTestCase
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
@@ -242,12 +244,12 @@ class PatchTest extends WebTestCase
         $newModel = 'A145TB Flexi';
         $client = $this->createClient();
         $client->jsonRequest(
-            'PATCH',
+            Request::METHOD_PATCH,
             "http://webserver/api/tablets/$itemId",
             ['manufacturer' => $newManufacturer, 'model' => $newModel,]
         );
 
-        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
         $this->assertEquals([
             'data' => [
                 'id' => $itemId,
@@ -274,13 +276,13 @@ class PatchTest extends WebTestCase
         $newModel = '';
         $client = $this->createClient();
         $client->jsonRequest(
-            'PATCH',
+            Request::METHOD_PATCH,
             "http://webserver/api/tablets/$itemId",
             ['manufacturer' => $newManufacturer, 'model' => $newModel,]
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
