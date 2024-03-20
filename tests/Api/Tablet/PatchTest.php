@@ -2,6 +2,7 @@
 
 namespace Tests\Api\Tablet;
 
+use App\Entity\Tablet;
 use App\Repository\TabletRepository;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,7 +28,13 @@ class PatchTest extends WebTestCase
         $client->jsonRequest(
             Request::METHOD_PATCH,
             "http://webserver/api/tablets/$itemId",
-            [$propertyName => $propertyValue]
+            [
+                [
+                    'op' => 'replace',
+                    'path' => "/$propertyName",
+                    "value" => $propertyValue
+                ]
+            ]
         );
 
         $expectedItem = [
@@ -66,7 +73,13 @@ class PatchTest extends WebTestCase
         $client->jsonRequest(
             Request::METHOD_PATCH,
             'http://webserver/api/tablets/',
-            ['manufacturer' => 'Asus',]
+            [
+                [
+                    'op' => 'replace',
+                    'path' => "/manufacturer",
+                    "value" => 'Asus'
+                ]
+            ]
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
@@ -88,7 +101,13 @@ class PatchTest extends WebTestCase
         $client->jsonRequest(
             Request::METHOD_PATCH,
             "http://webserver/api/tablets/$itemId",
-            [$propertyName => '',]
+            [
+                [
+                    'op' => 'replace',
+                    'path' => "/$propertyName",
+                    "value" => ''
+                ]
+            ]
         );
 
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
@@ -113,6 +132,106 @@ class PatchTest extends WebTestCase
         ];
     }
 
+    public function testUpdatePropertyFailsWithOperationAdd(): void
+    {
+        $client = $this->createClient();
+        $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
+        $newPropertyName = 'newProperty';
+        $client->jsonRequest(
+            Request::METHOD_PATCH,
+            "http://webserver/api/tablets/$itemId",
+            [
+                [
+                    'op' => 'add',
+                    'path' => "/$newPropertyName",
+                    "value" => 'xyz'
+                ]
+            ]
+        );
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
+
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
+        $this->assertTrue(key_exists('errors', $responseContentAsArray));
+        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
+        $this->assertFalse(key_exists('data', $responseContentAsArray));
+    }
+
+    public function testUpdatePropertyFailsWithOperationRemove(): void
+    {
+        $client = $this->createClient();
+        $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
+        $client->jsonRequest(
+            Request::METHOD_PATCH,
+            "http://webserver/api/tablets/$itemId",
+            [
+                [
+                    'op' => 'remove',
+                    'path' => "/model",
+                ]
+            ]
+        );
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
+
+        /* @var Tablet $tablet */
+        $tablet = $this->getContainer()->get(TabletRepository::class)->find($itemId);
+
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
+        $this->assertEquals('MeMO Pad HD 7', $tablet->getModel());
+        $this->assertTrue(key_exists('errors', $responseContentAsArray));
+        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
+        $this->assertFalse(key_exists('data', $responseContentAsArray));
+    }
+
+    public function testUpdatePropertyFailsWithOperationMove(): void
+    {
+        $client = $this->createClient();
+        $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
+        $client->jsonRequest(
+            Request::METHOD_PATCH,
+            "http://webserver/api/tablets/$itemId",
+            [
+                [
+                    'op' => 'move',
+                    'from' => '/model',
+                    'path' => "/newModel",
+                ]
+            ]
+        );
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
+
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
+        $this->assertTrue(key_exists('errors', $responseContentAsArray));
+        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
+        $this->assertFalse(key_exists('data', $responseContentAsArray));
+    }
+
+    public function testUpdatePropertyFailsWithOperationCopy(): void
+    {
+        $client = $this->createClient();
+        $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
+        $client->jsonRequest(
+            Request::METHOD_PATCH,
+            "http://webserver/api/tablets/$itemId",
+            [
+                [
+                    'op' => 'move',
+                    'from' => '/model',
+                    'path' => "/model2",
+                ]
+            ]
+        );
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
+
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
+        $this->assertTrue(key_exists('errors', $responseContentAsArray));
+        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
+        $this->assertFalse(key_exists('data', $responseContentAsArray));
+    }
+
     /**
      * @covers \App\EventSubscriber\PayloadFailedValidationEventSubscriber
      * @covers \App\Dto\TabletDto
@@ -124,7 +243,13 @@ class PatchTest extends WebTestCase
         $client->jsonRequest(
             Request::METHOD_PATCH,
             "http://webserver/api/tablets/$itemId",
-            ['unknownProperty' => '',]
+            [
+                [
+                    'op' => 'replace',
+                    'path' => "/unknownProperty",
+                    "value" => 'xyz'
+                ]
+            ]
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
@@ -141,7 +266,13 @@ class PatchTest extends WebTestCase
         $client->jsonRequest(
             Request::METHOD_PATCH,
             "http://webserver/api/tablets/$itemId",
-            ['id' => Uuid::v4(),]
+            [
+                [
+                    'op' => 'replace',
+                    'path' => "/id",
+                    "value" => Uuid::v4()
+                ]
+            ]
         );
 
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
@@ -167,7 +298,13 @@ class PatchTest extends WebTestCase
         $client->jsonRequest(
             Request::METHOD_PATCH,
             "http://webserver/api/tablets/$itemId",
-            ['price' => -8000,]
+            [
+                [
+                    'op' => 'replace',
+                    'path' => "/price",
+                    "value" => -8000
+                ]
+            ]
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
@@ -191,7 +328,13 @@ class PatchTest extends WebTestCase
         $client->jsonRequest(
             Request::METHOD_PATCH,
             "http://webserver/api/tablets/$itemId",
-            ['price' => 100000000,]
+            [
+                [
+                    'op' => 'replace',
+                    'path' => "/price",
+                    "value" => 100000000
+                ]
+            ]
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
@@ -218,7 +361,8 @@ class PatchTest extends WebTestCase
             [],
             [],
             ['HTTP_CONTENT_TYPE' => 'application/json'],
-            "{'manufacturer':'xiaomi','model':'Redmi Note 4','price':9999}"
+            "[{'op':'replace', 'path':'/manufacturer', 'value':'xiaomi'}]",
+
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
@@ -245,7 +389,18 @@ class PatchTest extends WebTestCase
         $client->jsonRequest(
             Request::METHOD_PATCH,
             "http://webserver/api/tablets/$itemId",
-            ['manufacturer' => $newManufacturer, 'model' => $newModel,]
+            [
+                [
+                    'op' => 'replace',
+                    'path' => "/manufacturer",
+                    "value" => $newManufacturer
+                ],
+                [
+                    'op' => 'replace',
+                    'path' => "/model",
+                    "value" => $newModel
+                ]
+            ]
         );
 
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
@@ -272,12 +427,22 @@ class PatchTest extends WebTestCase
     {
         $itemId = '0bdea651-825f-4648-9cac-4b03f8f4576e';
         $newManufacturer = 'Asus';
-        $newModel = '';
         $client = $this->createClient();
         $client->jsonRequest(
             Request::METHOD_PATCH,
             "http://webserver/api/tablets/$itemId",
-            ['manufacturer' => $newManufacturer, 'model' => $newModel,]
+            [
+                [
+                    'op' => 'replace',
+                    'path' => "/manufacturer",
+                    "value" => $newManufacturer
+                ],
+                [
+                    'op' => 'replace',
+                    'path' => "/model",
+                    "value" => ''
+                ]
+            ]
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);

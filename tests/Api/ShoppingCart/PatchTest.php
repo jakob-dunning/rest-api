@@ -2,6 +2,7 @@
 
 namespace Tests\Api\ShoppingCart;
 
+use App\Entity\ShoppingCart;
 use App\Repository\ShoppingCartRepository;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,7 +18,13 @@ class PatchTest extends WebTestCase
         $client->jsonRequest(
             Request::METHOD_PATCH,
             "http://webserver/api/shoppingcarts/$shoppingCartId",
-            ['expiresAt' => $expiresAt]
+            [
+                [
+                    'op' => 'replace',
+                    'path' => '/expiresAt',
+                    'value' => $expiresAt
+                ]
+            ]
         );
 
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
@@ -58,7 +65,13 @@ class PatchTest extends WebTestCase
         $client->jsonRequest(
             Request::METHOD_PATCH,
             "http://webserver/api/shoppingcarts/$shoppingCartId",
-            ['expiresAt' => $expiresAt]
+            [
+                [
+                    'op' => 'replace',
+                    'path' => '/expiresAt',
+                    'value' => $expiresAt
+                ]
+            ]
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
@@ -79,7 +92,13 @@ class PatchTest extends WebTestCase
         $client->jsonRequest(
             Request::METHOD_PATCH,
             "http://webserver/api/shoppingcarts/$shoppingCartId",
-            ['expiresAt' => '']
+            [
+                [
+                    'op' => 'replace',
+                    'path' => '/expiresAt',
+                    'value' => ''
+                ]
+            ]
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
@@ -101,7 +120,13 @@ class PatchTest extends WebTestCase
         $client->jsonRequest(
             Request::METHOD_PATCH,
             "http://webserver/api/shoppingcarts/$shoppingCartId",
-            ['expiresAt' => $expiresAt]
+            [
+                [
+                    'op' => 'replace',
+                    'path' => '/expiresAt',
+                    'value' => $expiresAt
+                ]
+            ]
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
@@ -122,7 +147,13 @@ class PatchTest extends WebTestCase
         $client->jsonRequest(
             Request::METHOD_PATCH,
             "http://webserver/api/shoppingcarts/$shoppingCartId",
-            ['id' => $shoppingCartId]
+            [
+                [
+                    'op' => 'replace',
+                    'path' => '/id',
+                    'value' => $shoppingCartId
+                ]
+            ]
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
@@ -134,5 +165,103 @@ class PatchTest extends WebTestCase
         /* @var \App\Entity\ShoppingCart $shoppingCart */
         $shoppingCart = $this->getContainer()->get(ShoppingCartRepository::class)->find($shoppingCartId);
         $this->assertEquals($shoppingCartId, $shoppingCart->getId()->toRfc4122());
+    }
+
+    public function testUpdatePropertyFailsWithOperationAdd(): void
+    {
+        $client = $this->createClient();
+        $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
+        $newPropertyName = 'newProperty';
+        $client->jsonRequest(
+            Request::METHOD_PATCH,
+            "http://webserver/api/shoppingcarts/$shoppingCartId",
+            [
+                [
+                    'op' => 'add',
+                    'path' => "/$newPropertyName",
+                    "value" => 'xyz'
+                ]
+            ]
+        );
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
+
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
+        $this->assertTrue(key_exists('errors', $responseContentAsArray));
+        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
+        $this->assertFalse(key_exists('data', $responseContentAsArray));
+    }
+
+    public function testUpdatePropertyFailsWithOperationRemove(): void
+    {
+        $client = $this->createClient();
+        $itemId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
+        $client->jsonRequest(
+            Request::METHOD_PATCH,
+            "http://webserver/api/shoppingcarts/$itemId",
+            [
+                [
+                    'op' => 'remove',
+                    'path' => "/expiresAt",
+                ]
+            ]
+        );
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
+
+        /* @var ShoppingCart $shoppingCart */
+        $shoppingCart = $this->getContainer()->get(ShoppingCartRepository::class)->find($itemId);
+
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
+        $this->assertEquals('2024-03-17T12:44:00.006Z', $shoppingCart->getExpiresAt());
+        $this->assertTrue(key_exists('errors', $responseContentAsArray));
+        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
+        $this->assertFalse(key_exists('data', $responseContentAsArray));
+    }
+
+    public function testUpdatePropertyFailsWithOperationMove(): void
+    {
+        $client = $this->createClient();
+        $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
+        $client->jsonRequest(
+            Request::METHOD_PATCH,
+            "http://webserver/api/shoppingcarts/$shoppingCartId",
+            [
+                [
+                    'op' => 'move',
+                    'from' => '/expiresAt',
+                    'path' => "/validUntil",
+                ]
+            ]
+        );
+
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
+        $this->assertTrue(key_exists('errors', $responseContentAsArray));
+        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
+        $this->assertFalse(key_exists('data', $responseContentAsArray));
+    }
+
+    public function testUpdatePropertyFailsWithOperationCopy(): void
+    {
+        $client = $this->createClient();
+        $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
+        $client->jsonRequest(
+            Request::METHOD_PATCH,
+            "http://webserver/api/shoppingcarts/$shoppingCartId",
+            [
+                [
+                    'op' => 'move',
+                    'from' => '/expiresAt',
+                    'path' => "/expiresAt2",
+                ]
+            ]
+        );
+
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
+        $this->assertTrue(key_exists('errors', $responseContentAsArray));
+        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
+        $this->assertFalse(key_exists('data', $responseContentAsArray));
     }
 }
