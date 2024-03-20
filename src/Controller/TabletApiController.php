@@ -12,7 +12,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Uid\UuidV4;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/api/tablets')]
@@ -61,29 +60,34 @@ class TabletApiController extends AbstractController
     #[Route('/{id}', methods: ['PATCH'], format: 'json')]
     public function update(Tablet $tablet, Request $request): JsonResponse
     {
-        if (in_array('id', $request->getPayload()->keys())) {
-            return new JsonResponse(
-                [
-                    'errors' => [
-                        'status' => Response::HTTP_BAD_REQUEST,
-                        'title' => 'Property "id" can not be changed'
-                    ]
-                ],
-                Response::HTTP_BAD_REQUEST,
-            );
-        }
-
         $tabletAsScalarArray = $tablet->toScalarArray();
 
-        foreach ($request->getPayload()->keys() as $key) {
-            if (key_exists($key, $tabletAsScalarArray) === false) {
+        foreach ($request->getPayload()->all() as $patch) {
+            if(in_array(ltrim($patch['path'], '/'),['manufacturer','model', 'price']) === false) {
                 return new JsonResponse(
-                    ['errors' => ["No field found with name: $key"]],
+                    [
+                        'errors' => [
+                            'status' => Response::HTTP_BAD_REQUEST,
+                            'title' => "Patch path \"{$patch['path']}\" not found or read-only"
+                        ]
+                    ],
                     Response::HTTP_BAD_REQUEST,
                 );
             }
 
-            $tabletAsScalarArray[$key] = $request->getPayload()->get($key);
+            if($patch['op'] !== 'replace') {
+                return new JsonResponse(
+                    [
+                        'errors' => [
+                            'status' => Response::HTTP_BAD_REQUEST,
+                            'title' => "Patch operation \"{$patch['op']}\" not possible on entity"
+                        ]
+                    ],
+                    Response::HTTP_BAD_REQUEST,
+                );
+            }
+
+            $tabletAsScalarArray[ltrim($patch['path'], '/')] = $patch['value'];
         }
 
         $tabletDto = TabletDto::fromScalarArray($tabletAsScalarArray);
