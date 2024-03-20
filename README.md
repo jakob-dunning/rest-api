@@ -24,6 +24,8 @@ It must be possible to:
 - Add validation and error-handling to routes (https://jsonapi.org/format/#error-objects)
 - Sanitize output to prevent corruption
 - Adher to JSON:API standards
+- Implement HEAD?
+- Replace returning error responses in controllers with exceptions and handle formatting in eventsubscriber 
 
 ## References
 - https://levelup.gitconnected.com/how-to-properly-handle-requests-with-symfony-6-3-0bfc8d7726a9
