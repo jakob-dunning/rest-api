@@ -13,19 +13,18 @@ It must be possible to:
 ## Todo
 
 - Don't run nginx, postgres or php as root inside docker containers
-- Write tests
 - Add versioning to the API
 - Add authorization features to the API
 - Serve API though HTTPS only
 - Add make setup target
 - Add documentation
-- Add githook to run phpstan and phpcbf on commit
 - Remove hardcoded url for webserver from api tests
-- Add validation and error-handling to routes (https://jsonapi.org/format/#error-objects)
 - Sanitize output to prevent corruption
 - Adher to JSON:API standards
 - Implement HEAD?
-- Replace returning error responses in controllers with exceptions and handle formatting in eventsubscriber 
+- Replace returning error responses in controllers with exceptions and handle formatting in eventsubscriber
+- Implement Etag
+- Add caching headers
 
 ## References
 - https://levelup.gitconnected.com/how-to-properly-handle-requests-with-symfony-6-3-0bfc8d7726a9
