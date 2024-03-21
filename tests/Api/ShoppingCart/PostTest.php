@@ -32,13 +32,13 @@ class PostTest extends WebTestCase
             ];
         $client->jsonRequest(
             Request::METHOD_POST,
-            'http://webserver/api/shoppingcarts',
+            'http://webserver/api/shopping-carts',
             $newShoppingCart
         );
 
         $this->assertEquals(Response::HTTP_CREATED, $client->getResponse()->getStatusCode());
         $this->assertEquals(
-            ['data' => "http://localhost/api/shoppingcarts/$shoppingCartId"],
+            ['data' => "http://localhost/api/shopping-carts/$shoppingCartId"],
             json_decode($client->getResponse()->getContent(), true)
         );
 
@@ -63,7 +63,7 @@ class PostTest extends WebTestCase
             ];
         $client->jsonRequest(
             Request::METHOD_POST,
-            'http://webserver/api/shoppingcarts',
+            'http://webserver/api/shopping-carts',
             $newShoppingCart
         );
 
@@ -91,13 +91,13 @@ class PostTest extends WebTestCase
         $tabletId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
             Request::METHOD_POST,
-            "http://webserver/api/shoppingcarts/$shoppingCartId/tablets",
+            "http://webserver/api/shopping-carts/$shoppingCartId/tablets",
             ['id' => $tabletId]
         );
 
         $this->assertEquals(Response::HTTP_CREATED, $client->getResponse()->getStatusCode());
         $this->assertEquals(
-            ['data' => "http://localhost/api/shoppingcarts/$shoppingCartId/tablets/$tabletId"],
+            ['data' => "http://localhost/api/shopping-carts/$shoppingCartId/tablets/$tabletId"],
             json_decode($client->getResponse()->getContent(), true)
         );
 
@@ -121,7 +121,7 @@ class PostTest extends WebTestCase
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
         $client->jsonRequest(
             Request::METHOD_POST,
-            "http://webserver/api/shoppingcarts/$shoppingCartId/tablets",
+            "http://webserver/api/shopping-carts/$shoppingCartId/tablets",
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
@@ -140,7 +140,7 @@ class PostTest extends WebTestCase
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
         $client->jsonRequest(
             Request::METHOD_POST,
-            "http://webserver/api/shoppingcarts/$shoppingCartId/tablets",
+            "http://webserver/api/shopping-carts/$shoppingCartId/tablets",
             ['id' => '']
         );
 
@@ -160,7 +160,7 @@ class PostTest extends WebTestCase
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
         $client->jsonRequest(
             Request::METHOD_POST,
-            "http://webserver/api/shoppingcarts/$shoppingCartId/tablets",
+            "http://webserver/api/shopping-carts/$shoppingCartId/tablets",
             ['id' => 'abcde']
         );
 
@@ -180,7 +180,7 @@ class PostTest extends WebTestCase
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
         $client->jsonRequest(
             Request::METHOD_POST,
-            "http://webserver/api/shoppingcarts/$shoppingCartId/tablets",
+            "http://webserver/api/shopping-carts/$shoppingCartId/tablets",
             ['id' => '3090534b-ac67-4d31-8dcc-9458210cb20a']
         );
 

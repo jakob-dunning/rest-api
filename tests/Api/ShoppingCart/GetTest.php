@@ -19,7 +19,7 @@ class GetTest extends WebTestCase
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
         $client->jsonRequest(
             'GET',
-            "http://webserver/api/shoppingcarts/$shoppingCartId"
+            "http://webserver/api/shopping-carts/$shoppingCartId"
         );
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
@@ -54,7 +54,7 @@ class GetTest extends WebTestCase
         $client = $this->createClient();
         $client->jsonRequest(
             'GET',
-            'http://webserver/api/shoppingcarts/'
+            'http://webserver/api/shopping-carts/'
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
@@ -70,7 +70,7 @@ class GetTest extends WebTestCase
         $client = $this->createClient();
         $client->jsonRequest(
             'GET',
-            'http://webserver/api/shoppingcarts/abcde'
+            'http://webserver/api/shopping-carts/abcde'
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
@@ -87,7 +87,7 @@ class GetTest extends WebTestCase
         $shoppingCartId = '47eaaaa1-4fde-4c91-a426-9064dd79a354';
         $client->jsonRequest(
             'GET',
-            "http://webserver/api/shoppingcarts/$shoppingCartId"
+            "http://webserver/api/shopping-carts/$shoppingCartId"
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);

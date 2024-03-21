@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Dto\ShoppingCartDto;
 use App\Entity\ShoppingCart;
 use App\Entity\Tablet;
-use App\Repository\TabletRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,7 +17,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-#[Route('/api/shoppingcarts')]
+#[Route('/api/shopping-carts')]
 class ShoppingCartApiController extends AbstractController
 {
     public function __construct(
@@ -44,7 +43,7 @@ class ShoppingCartApiController extends AbstractController
         $this->entityManager->flush();
 
         return new JsonResponse(
-            ['data' => sprintf('http://localhost/api/shoppingcarts/%s', $shoppingCart->getId()->toRfc4122())],
+            ['data' => sprintf('http://localhost/api/shopping-carts/%s', $shoppingCart->getId()->toRfc4122())],
             201,
         );
     }
@@ -62,7 +61,7 @@ class ShoppingCartApiController extends AbstractController
         return new JsonResponse(
             [
                 'data' => sprintf(
-                    'http://localhost/api/shoppingcarts/%s/tablets/%s',
+                    'http://localhost/api/shopping-carts/%s/tablets/%s',
                     $shoppingCart->getId()->toRfc4122(),
                     $tablet->getId()->toRfc4122()
                 )

@@ -25,7 +25,7 @@ class PatchTest extends WebTestCase
         $expiresAt = (new \DateTime())->modify('+1 hour')->format(DATE_ATOM);
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/shoppingcarts/$shoppingCartId",
+            "http://webserver/api/shopping-carts/$shoppingCartId",
             [
                 [
                     'op' => 'replace',
@@ -76,7 +76,7 @@ class PatchTest extends WebTestCase
         $expiresAt = (new \DateTime())->format(DATE_ATOM);
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/shoppingcarts/$shoppingCartId",
+            "http://webserver/api/shopping-carts/$shoppingCartId",
             [
                 [
                     'op' => 'replace',
@@ -103,7 +103,7 @@ class PatchTest extends WebTestCase
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/shoppingcarts/$shoppingCartId",
+            "http://webserver/api/shopping-carts/$shoppingCartId",
             [
                 [
                     'op' => 'replace',
@@ -135,7 +135,7 @@ class PatchTest extends WebTestCase
         $expiresAt = (new \DateTime())->format(DATE_RFC1036);
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/shoppingcarts/$shoppingCartId",
+            "http://webserver/api/shopping-carts/$shoppingCartId",
             [
                 [
                     'op' => 'replace',
@@ -162,7 +162,7 @@ class PatchTest extends WebTestCase
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/shoppingcarts/$shoppingCartId",
+            "http://webserver/api/shopping-carts/$shoppingCartId",
             [
                 [
                     'op' => 'replace',
@@ -190,7 +190,7 @@ class PatchTest extends WebTestCase
         $newPropertyName = 'newProperty';
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/shoppingcarts/$shoppingCartId",
+            "http://webserver/api/shopping-carts/$shoppingCartId",
             [
                 [
                     'op' => 'add',
@@ -214,7 +214,7 @@ class PatchTest extends WebTestCase
         $itemId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/shoppingcarts/$itemId",
+            "http://webserver/api/shopping-carts/$itemId",
             [
                 [
                     'op' => 'remove',
@@ -241,7 +241,7 @@ class PatchTest extends WebTestCase
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/shoppingcarts/$shoppingCartId",
+            "http://webserver/api/shopping-carts/$shoppingCartId",
             [
                 [
                     'op' => 'move',
@@ -264,7 +264,7 @@ class PatchTest extends WebTestCase
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/shoppingcarts/$shoppingCartId",
+            "http://webserver/api/shopping-carts/$shoppingCartId",
             [
                 [
                     'op' => 'move',
