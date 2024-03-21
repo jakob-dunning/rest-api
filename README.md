@@ -13,7 +13,6 @@ It must be possible to:
 ## Todo
 
 - Don't run nginx, postgres or php as root inside docker containers
-- Add versioning to the API
 - Add authorization features to the API
 - Serve API though HTTPS only
 - Add make setup target

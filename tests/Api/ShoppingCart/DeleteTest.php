@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @covers \App\Controller\ShoppingCartApiController::delete
+ * @covers \App\Controller\V1\ShoppingCartApiController::delete
  * @covers \App\EventSubscriber\JsonResponseEventSubscriber
  */
 class DeleteTest extends WebTestCase
@@ -18,7 +18,7 @@ class DeleteTest extends WebTestCase
     {
         $client = $this->createClient();
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
-        $client->jsonRequest(Request::METHOD_DELETE, "http://webserver/api/shopping-carts/$shoppingCartId");
+        $client->jsonRequest(Request::METHOD_DELETE, "http://webserver/api/shopping-carts/v1/$shoppingCartId");
 
         $this->assertEquals(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
         $this->assertEquals('', $client->getResponse()->getContent());
@@ -32,7 +32,7 @@ class DeleteTest extends WebTestCase
     public function testDeleteShoppingCartFailsWithMissingId(): void
     {
         $client = $this->createClient();
-        $client->jsonRequest(Request::METHOD_DELETE, 'http://webserver/api/shopping-carts/');
+        $client->jsonRequest(Request::METHOD_DELETE, 'http://webserver/api/shopping-carts/v1/');
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
@@ -45,7 +45,7 @@ class DeleteTest extends WebTestCase
     public function testDeleteShoppingCartFailsWithInvalidId(): void
     {
         $client = $this->createClient();
-        $client->jsonRequest(Request::METHOD_DELETE, 'http://webserver/api/shopping-carts/abcde');
+        $client->jsonRequest(Request::METHOD_DELETE, 'http://webserver/api/shopping-carts/v1/abcde');
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
@@ -60,7 +60,7 @@ class DeleteTest extends WebTestCase
         $client = $this->createClient();
         $client->jsonRequest(
             Request::METHOD_DELETE,
-            'http://webserver/api/shopping-carts/49422ab6-a3e7-4440-9066-6ce601251494'
+            'http://webserver/api/shopping-carts/v1/49422ab6-a3e7-4440-9066-6ce601251494'
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
@@ -71,7 +71,7 @@ class DeleteTest extends WebTestCase
     }
 
     /**
-     * @covers \App\Controller\ShoppingCartApiController::removeTablet
+     * @covers \App\Controller\V1\ShoppingCartApiController::removeTablet
      */
     public function testRemoveTabletFromShoppingCart(): void
     {
@@ -80,7 +80,7 @@ class DeleteTest extends WebTestCase
         $tabletId = '0bdea651-825f-4648-9cac-4b03f8f4576e';
         $client->jsonRequest(
             Request::METHOD_DELETE,
-            "http://webserver/api/shopping-carts/$shoppingCartId/tablets/$tabletId"
+            "http://webserver/api/shopping-carts/v1/$shoppingCartId/tablets/$tabletId"
         );
 
         $this->assertEquals(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
@@ -102,7 +102,7 @@ class DeleteTest extends WebTestCase
         $client = $this->createClient();
         $client->jsonRequest(
             Request::METHOD_DELETE,
-            'http://webserver/api/shopping-carts/5a2dc28e-1282-4e52-b90c-782c908a4e04/tablets/'
+            'http://webserver/api/shopping-carts/v1/5a2dc28e-1282-4e52-b90c-782c908a4e04/tablets/'
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
@@ -118,7 +118,7 @@ class DeleteTest extends WebTestCase
         $client = $this->createClient();
         $client->jsonRequest(
             Request::METHOD_DELETE,
-            "http://webserver/api/shopping-carts/5a2dc28e-1282-4e52-b90c-782c908a4e04/tablets/abcde"
+            "http://webserver/api/shopping-carts/v1/5a2dc28e-1282-4e52-b90c-782c908a4e04/tablets/abcde"
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
@@ -136,7 +136,7 @@ class DeleteTest extends WebTestCase
         $unknownTabletId = '6f36f4c5-5f99-4b97-a908-93a47662e435';
         $client->jsonRequest(
             Request::METHOD_DELETE,
-            "http://webserver/api/shopping-carts/$shoppingCartId/tablets/$unknownTabletId"
+            "http://webserver/api/shopping-carts/v1/$shoppingCartId/tablets/$unknownTabletId"
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\V1;
 
 use App\Dto\TabletDto;
 use App\Entity\Tablet;
@@ -14,7 +14,7 @@ use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-#[Route('/api/tablets')]
+#[Route('/api/tablets/v1')]
 class TabletApiController extends AbstractController
 {
     public function __construct(
@@ -52,7 +52,7 @@ class TabletApiController extends AbstractController
         $this->entityManager->flush();
 
         return new JsonResponse(
-            ['data' => sprintf('http://localhost/api/tablets/%s', $tablet->getId()->toRfc4122())],
+            ['data' => sprintf('http://localhost/api/tablets/v1/%s', $tablet->getId()->toRfc4122())],
             201,
         );
     }

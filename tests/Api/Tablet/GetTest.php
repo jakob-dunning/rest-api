@@ -9,14 +9,14 @@ use Symfony\Component\HttpFoundation\Response;
 class GetTest extends WebTestCase
 {
     /**
-     * @covers \App\Controller\TabletApiController::list
+     * @covers \App\Controller\V1\TabletApiController::list
      * @covers \App\EventSubscriber\JsonResponseEventSubscriber
      * @covers \App\Entity\Tablet::__construct
      */
     public function testShowAllItems(): void
     {
         $client = $this->createClient();
-        $client->jsonRequest(Request::METHOD_GET, 'http://webserver/api/tablets');
+        $client->jsonRequest(Request::METHOD_GET, 'http://webserver/api/tablets/v1');
 
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
         $this->assertEqualsCanonicalizing(
@@ -47,14 +47,14 @@ class GetTest extends WebTestCase
     }
 
     /**
-     * @covers \App\Controller\TabletApiController::show
+     * @covers \App\Controller\V1\TabletApiController::show
      * @covers \App\Entity\Tablet::__construct
      */
     public function testShowSingleItem(): void
     {
         $client = $this->createClient();
         $itemId = '44682a67-fa83-4216-9e9d-5ea5dd5bf480';
-        $client->jsonRequest(Request::METHOD_GET, "http://webserver/api/tablets/$itemId");
+        $client->jsonRequest(Request::METHOD_GET, "http://webserver/api/tablets/v1/$itemId");
 
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
         $this->assertEquals(
@@ -71,14 +71,14 @@ class GetTest extends WebTestCase
     }
 
     /**
-     * @covers \App\Controller\TabletApiController::show
+     * @covers \App\Controller\V1\TabletApiController::show
      * @Covers \App\EventSubscriber\HttpNotFoundEventSubscriber
      */
     public function testShowSingleItemFailsWithInvalidId(): void
     {
         $client = $this->createClient();
         $itemId = 'abcde';
-        $client->jsonRequest(Request::METHOD_GET, "http://webserver/api/tablets/$itemId");
+        $client->jsonRequest(Request::METHOD_GET, "http://webserver/api/tablets/v1/$itemId");
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
@@ -88,14 +88,14 @@ class GetTest extends WebTestCase
     }
 
     /**
-     * @covers \App\Controller\TabletApiController::show
+     * @covers \App\Controller\V1\TabletApiController::show
      * @Covers \App\EventSubscriber\HttpNotFoundEventSubscriber
      */
     public function testShowSingleItemFailsWithUnknownId(): void
     {
         $client = $this->createClient();
         $itemId = '66a5c0d8-4289-43ba-941a-e235f722c438';
-        $client->jsonRequest(Request::METHOD_GET, "http://webserver/api/tablets/$itemId");
+        $client->jsonRequest(Request::METHOD_GET, "http://webserver/api/tablets/v1/$itemId");
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());

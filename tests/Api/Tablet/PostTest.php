@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Uid\Uuid;
 
 /**
- * @covers \App\Controller\TabletApiController::create
+ * @covers \App\Controller\V1\TabletApiController::create
  * @covers \App\EventSubscriber\JsonResponseEventSubscriber
  */
 class PostTest extends WebTestCase
@@ -30,13 +30,13 @@ class PostTest extends WebTestCase
         ];
         $client->jsonRequest(
             Request::METHOD_POST,
-            "http://webserver/api/tablets",
+            "http://webserver/api/tablets/v1",
             $newItem
         );
 
         $this->assertEquals(Response::HTTP_CREATED, $client->getResponse()->getStatusCode());
         $this->assertEquals(
-            ['data' => "http://localhost/api/tablets/$newItemId"],
+            ['data' => "http://localhost/api/tablets/v1/$newItemId"],
             json_decode($client->getResponse()->getContent(), true)
         );
 
@@ -54,7 +54,7 @@ class PostTest extends WebTestCase
         $client = $this->createClient();
         $client->jsonRequest(
             Request::METHOD_POST,
-            "http://webserver/api/tablets",
+            "http://webserver/api/tablets/v1",
             [
                 'id' => 'abcde',
                 'manufacturer' => 'Xiaomi',
@@ -88,7 +88,7 @@ class PostTest extends WebTestCase
         $newItem[$propertyName] = '';
         $client->jsonRequest(
             Request::METHOD_POST,
-            "http://webserver/api/tablets",
+            "http://webserver/api/tablets/v1",
             $newItem
         );
 
@@ -122,7 +122,7 @@ class PostTest extends WebTestCase
     {
         $client = $this->createClient();
         $newItemId = Uuid::v4();
-        $client->jsonRequest(Request::METHOD_POST, "http://webserver/api/tablets", [
+        $client->jsonRequest(Request::METHOD_POST, "http://webserver/api/tablets/v1", [
             'id' => $newItemId,
             'manufacturer' => 'Xiaomi',
             'model' => 'Redmi Pad SE',
@@ -148,7 +148,7 @@ class PostTest extends WebTestCase
     {
         $client = $this->createClient();
         $newItemId = Uuid::v4();
-        $client->jsonRequest(Request::METHOD_POST, "http://webserver/api/tablets", [
+        $client->jsonRequest(Request::METHOD_POST, "http://webserver/api/tablets/v1", [
             'id' => $newItemId,
             'manufacturer' => 'Xiaomi',
             'model' => 'Redmi Pad SE',
@@ -184,7 +184,7 @@ class PostTest extends WebTestCase
         unset($newItem[$propertyName]);
         $client->jsonRequest(
             Request::METHOD_POST,
-            "http://webserver/api/tablets",
+            "http://webserver/api/tablets/v1",
             $newItem
         );
 
@@ -208,7 +208,7 @@ class PostTest extends WebTestCase
         $newItemId = Uuid::v4();
         $client->request(
             Request::METHOD_POST,
-            "http://webserver/api/tablets",
+            "http://webserver/api/tablets/v1",
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],

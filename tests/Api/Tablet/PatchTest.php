@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Uid\Uuid;
 
 /**
- * @covers \App\Controller\TabletApiController::update
+ * @covers \App\Controller\V1\TabletApiController::update
  * @covers \App\EventSubscriber\JsonResponseEventSubscriber
  * @uses   \App\Entity\Tablet
  */
@@ -27,7 +27,7 @@ class PatchTest extends WebTestCase
         $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/tablets/$itemId",
+            "http://webserver/api/tablets/v1/$itemId",
             [
                 [
                     'op' => 'replace',
@@ -72,7 +72,7 @@ class PatchTest extends WebTestCase
         $client = $this->createClient();
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            'http://webserver/api/tablets/',
+            'http://webserver/api/tablets/v1/',
             [
                 [
                     'op' => 'replace',
@@ -100,7 +100,7 @@ class PatchTest extends WebTestCase
         $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/tablets/$itemId",
+            "http://webserver/api/tablets/v1/$itemId",
             [
                 [
                     'op' => 'replace',
@@ -139,7 +139,7 @@ class PatchTest extends WebTestCase
         $newPropertyName = 'newProperty';
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/tablets/$itemId",
+            "http://webserver/api/tablets/v1/$itemId",
             [
                 [
                     'op' => 'add',
@@ -163,7 +163,7 @@ class PatchTest extends WebTestCase
         $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/tablets/$itemId",
+            "http://webserver/api/tablets/v1/$itemId",
             [
                 [
                     'op' => 'remove',
@@ -190,7 +190,7 @@ class PatchTest extends WebTestCase
         $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/tablets/$itemId",
+            "http://webserver/api/tablets/v1/$itemId",
             [
                 [
                     'op' => 'move',
@@ -214,7 +214,7 @@ class PatchTest extends WebTestCase
         $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/tablets/$itemId",
+            "http://webserver/api/tablets/v1/$itemId",
             [
                 [
                     'op' => 'move',
@@ -242,7 +242,7 @@ class PatchTest extends WebTestCase
         $client = $this->createClient();
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/tablets/$itemId",
+            "http://webserver/api/tablets/v1/$itemId",
             [
                 [
                     'op' => 'replace',
@@ -265,7 +265,7 @@ class PatchTest extends WebTestCase
         $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/tablets/$itemId",
+            "http://webserver/api/tablets/v1/$itemId",
             [
                 [
                     'op' => 'replace',
@@ -297,7 +297,7 @@ class PatchTest extends WebTestCase
         $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/tablets/$itemId",
+            "http://webserver/api/tablets/v1/$itemId",
             [
                 [
                     'op' => 'replace',
@@ -327,7 +327,7 @@ class PatchTest extends WebTestCase
         $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/tablets/$itemId",
+            "http://webserver/api/tablets/v1/$itemId",
             [
                 [
                     'op' => 'replace',
@@ -357,7 +357,7 @@ class PatchTest extends WebTestCase
         $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->request(
             Request::METHOD_PATCH,
-            "http://webserver/api/tablets/$itemId",
+            "http://webserver/api/tablets/v1/$itemId",
             [],
             [],
             ['HTTP_CONTENT_TYPE' => 'application/json'],
@@ -387,7 +387,7 @@ class PatchTest extends WebTestCase
         $client = $this->createClient();
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/tablets/$itemId",
+            "http://webserver/api/tablets/v1/$itemId",
             [
                 [
                     'op' => 'replace',
@@ -429,7 +429,7 @@ class PatchTest extends WebTestCase
         $client = $this->createClient();
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/tablets/$itemId",
+            "http://webserver/api/tablets/v1/$itemId",
             [
                 [
                     'op' => 'replace',
