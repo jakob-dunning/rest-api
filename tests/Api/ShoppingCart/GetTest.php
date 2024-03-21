@@ -4,8 +4,15 @@ namespace Tests\Api\ShoppingCart;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
+/**
+ * @covers \App\Controller\ShoppingCartApiController::show
+ * @covers \App\EventSubscriber\JsonResponseEventSubscriber
+ */
 class GetTest extends WebTestCase
 {
+    /**
+     * @covers \App\Entity\ShoppingCart::__construct
+     */
     public function testShowShoppingCart(): void
     {
         $client = $this->createClient();
@@ -20,7 +27,7 @@ class GetTest extends WebTestCase
             [
                 'data' => [
                     'id' => $shoppingCartId,
-                    'expiresAt' => '2024-03-17T12:44:00.006Z',
+                    'expiresAt' => '2024-03-17T12:44:00+00:00',
                     'products' => [
                         [
                             'id' => '44682a67-fa83-4216-9e9d-5ea5dd5bf480',
@@ -41,6 +48,7 @@ class GetTest extends WebTestCase
         );
     }
 
+    /** @covers \App\EventSubscriber\HttpNotFoundEventSubscriber */
     public function testShowShoppingCartFailsWithMissingId(): void
     {
         $client = $this->createClient();
@@ -56,6 +64,7 @@ class GetTest extends WebTestCase
         $this->assertFalse(key_exists('data', $responseContentAsArray));
     }
 
+    /** @covers \App\EventSubscriber\HttpNotFoundEventSubscriber */
     public function testShowShoppingCartFailsWithInvalidId(): void
     {
         $client = $this->createClient();
@@ -71,6 +80,7 @@ class GetTest extends WebTestCase
         $this->assertFalse(key_exists('data', $responseContentAsArray));
     }
 
+    /** @covers \App\EventSubscriber\HttpNotFoundEventSubscriber */
     public function testShowShoppingCartFailsWithUnknownId(): void
     {
         $client = $this->createClient();

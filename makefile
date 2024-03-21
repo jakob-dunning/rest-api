@@ -9,10 +9,10 @@ test:
 	docker-compose exec php bin/phpunit
 
 phpstan:
-	docker-compose exec php vendor/bin/phpstan
+	docker-compose exec -T php vendor/bin/phpstan
 
 phpcs:
-	docker-compose exec php vendor/bin/phpcs
+	docker-compose exec -T php vendor/bin/phpcs
 
 phpcbf:
 	docker-compose exec php vendor/bin/phpcbf

@@ -36,7 +36,7 @@ class PayloadFailedValidationEventSubscriber implements EventSubscriberInterface
         $errors = [];
         foreach ($validationException->getViolations() as $violation) {
             $errors[] = [
-                'status' => Response::HTTP_BAD_REQUEST,
+                'status' => Response::HTTP_UNPROCESSABLE_ENTITY,
                 'title' => $violation->getMessage(),
                 'source' => [
                     'pointer' => sprintf('/%s', $violation->getPropertyPath())
@@ -47,7 +47,7 @@ class PayloadFailedValidationEventSubscriber implements EventSubscriberInterface
         $event->setResponse(
             new JsonResponse(
                 ['errors' => $errors],
-                Response::HTTP_BAD_REQUEST,
+                Response::HTTP_UNPROCESSABLE_ENTITY,
             )
         );
     }

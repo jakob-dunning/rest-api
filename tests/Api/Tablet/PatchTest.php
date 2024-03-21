@@ -362,7 +362,6 @@ class PatchTest extends WebTestCase
             [],
             ['HTTP_CONTENT_TYPE' => 'application/json'],
             "[{'op':'replace', 'path':'/manufacturer', 'value':'xiaomi'}]",
-
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);

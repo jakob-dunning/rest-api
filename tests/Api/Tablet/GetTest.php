@@ -11,6 +11,7 @@ class GetTest extends WebTestCase
     /**
      * @covers \App\Controller\TabletApiController::list
      * @covers \App\EventSubscriber\JsonResponseEventSubscriber
+     * @covers \App\Entity\Tablet::__construct
      */
     public function testShowAllItems(): void
     {
@@ -47,6 +48,7 @@ class GetTest extends WebTestCase
 
     /**
      * @covers \App\Controller\TabletApiController::show
+     * @covers \App\Entity\Tablet::__construct
      */
     public function testShowSingleItem(): void
     {

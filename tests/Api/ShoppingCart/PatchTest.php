@@ -8,13 +8,21 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @covers \App\Controller\ShoppingCartApiController::update
+ * @covers \App\EventSubscriber\JsonResponseEventSubscriber
+ */
 class PatchTest extends WebTestCase
 {
+    /**
+     * @covers \App\Entity\ShoppingCart
+     * @covers \App\Dto\ShoppingCartDto
+     */
     public function testUpdateExpiresAt(): void
     {
-        $client = $this->getClient();
+        $client = $this->createClient();
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
-        $expiresAt = (new \DateTime())->format(DATE_ATOM);
+        $expiresAt = (new \DateTime())->modify('+1 hour')->format(DATE_ATOM);
         $client->jsonRequest(
             Request::METHOD_PATCH,
             "http://webserver/api/shoppingcarts/$shoppingCartId",
@@ -33,7 +41,7 @@ class PatchTest extends WebTestCase
                 'data' => [
                     'id' => $shoppingCartId,
                     'expiresAt' => $expiresAt,
-                    'products' => [
+                    'tablets' => [
                         [
                             'id' => '44682a67-fa83-4216-9e9d-5ea5dd5bf480',
                             'manufacturer' => 'Lenovo',
@@ -57,9 +65,13 @@ class PatchTest extends WebTestCase
         $this->assertEquals($expiresAt, $shoppingCart->getExpiresAt()->format(DATE_ATOM));
     }
 
+    /**
+     * @covers \App\Dto\ShoppingCartDto
+     * @covers \App\EventSubscriber\PayloadFailedValidationEventSubscriber
+     */
     public function testUpdateExpiresAtFailsWithDateInThePast(): void
     {
-        $client = $this->getClient();
+        $client = $this->createClient();
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
         $expiresAt = (new \DateTime())->format(DATE_ATOM);
         $client->jsonRequest(
@@ -75,19 +87,19 @@ class PatchTest extends WebTestCase
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $client->getResponse()->getStatusCode());
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
 
         /* @var \App\Entity\ShoppingCart $shoppingCart */
         $shoppingCart = $this->getContainer()->get(ShoppingCartRepository::class)->find($shoppingCartId);
-        $this->assertEquals('2024-03-17T12:44:00.006Z', $shoppingCart->getExpiresAt()->format(DATE_ATOM));
+        $this->assertEquals('2024-03-17T12:44:00+00:00', $shoppingCart->getExpiresAt()->format(DATE_ATOM));
     }
 
     public function testUpdateExpiresAtFailsWithEmptyDate(): void
     {
-        $client = $this->getClient();
+        $client = $this->createClient();
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
         $client->jsonRequest(
             Request::METHOD_PATCH,
@@ -109,12 +121,16 @@ class PatchTest extends WebTestCase
 
         /* @var \App\Entity\ShoppingCart $shoppingCart */
         $shoppingCart = $this->getContainer()->get(ShoppingCartRepository::class)->find($shoppingCartId);
-        $this->assertEquals('2024-03-17T12:44:00.006Z', $shoppingCart->getExpiresAt()->format(DATE_ATOM));
+        $this->assertEquals('2024-03-17T12:44:00+00:00', $shoppingCart->getExpiresAt()->format(DATE_ATOM));
     }
 
+    /**
+     * @covers \App\Dto\ShoppingCartDto
+     * @covers \App\EventSubscriber\PayloadFailedValidationEventSubscriber
+     */
     public function testUpdateExpiresAtFailsWithDateFormatNotIso8601(): void
     {
-        $client = $this->getClient();
+        $client = $this->createClient();
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
         $expiresAt = (new \DateTime())->format(DATE_RFC1036);
         $client->jsonRequest(
@@ -130,19 +146,19 @@ class PatchTest extends WebTestCase
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $client->getResponse()->getStatusCode());
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
 
         /* @var \App\Entity\ShoppingCart $shoppingCart */
         $shoppingCart = $this->getContainer()->get(ShoppingCartRepository::class)->find($shoppingCartId);
-        $this->assertEquals('2024-03-17T12:44:00.006Z', $shoppingCart->getExpiresAt()->format(DATE_ATOM));
+        $this->assertEquals('2024-03-17T12:44:00+00:00', $shoppingCart->getExpiresAt()->format(DATE_ATOM));
     }
 
     public function testUpdateIdFails(): void
     {
-        $client = $this->getClient();
+        $client = $this->createClient();
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
         $client->jsonRequest(
             Request::METHOD_PATCH,
@@ -213,7 +229,7 @@ class PatchTest extends WebTestCase
         $shoppingCart = $this->getContainer()->get(ShoppingCartRepository::class)->find($itemId);
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals('2024-03-17T12:44:00.006Z', $shoppingCart->getExpiresAt());
+        $this->assertEquals(new \DateTime('2024-03-17T12:44:00+00:00'), $shoppingCart->getExpiresAt());
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));

@@ -63,7 +63,7 @@ class TabletApiController extends AbstractController
         $tabletAsScalarArray = $tablet->toScalarArray();
 
         foreach ($request->getPayload()->all() as $patch) {
-            if(in_array(ltrim($patch['path'], '/'),['manufacturer','model', 'price']) === false) {
+            if (in_array(ltrim($patch['path'], '/'), ['manufacturer','model', 'price']) === false) {
                 return new JsonResponse(
                     [
                         'errors' => [
@@ -75,7 +75,7 @@ class TabletApiController extends AbstractController
                 );
             }
 
-            if($patch['op'] !== 'replace') {
+            if ($patch['op'] !== 'replace') {
                 return new JsonResponse(
                     [
                         'errors' => [
@@ -123,7 +123,7 @@ class TabletApiController extends AbstractController
         $this->entityManager->flush();
 
         return new JsonResponse(
-            ['data' => ''],
+            null,
             Response::HTTP_NO_CONTENT,
         );
     }

@@ -8,25 +8,30 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @covers \App\Controller\ShoppingCartApiController::delete
+ * @covers \App\EventSubscriber\JsonResponseEventSubscriber
+ */
 class DeleteTest extends WebTestCase
 {
     public function testDeleteShoppingCart(): void
     {
-        $client = $this->getClient();
+        $client = $this->createClient();
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
         $client->jsonRequest(Request::METHOD_DELETE, "http://webserver/api/shoppingcarts/$shoppingCartId");
 
         $this->assertEquals(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
-        $this->assertFalse($client->getResponse()->getContent());
+        $this->assertEquals('', $client->getResponse()->getContent());
 
-        $shoppingCart = $this->getContainer()->get(ShoppingCartRepository::class);
+        $shoppingCart = $this->getContainer()->get(ShoppingCartRepository::class)->find($shoppingCartId);
 
         $this->assertNull($shoppingCart);
     }
 
+    /** @covers \App\EventSubscriber\HttpNotFoundEventSubscriber */
     public function testDeleteShoppingCartFailsWithMissingId(): void
     {
-        $client = $this->getClient();
+        $client = $this->createClient();
         $client->jsonRequest(Request::METHOD_DELETE, 'http://webserver/api/shoppingcarts/');
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
@@ -36,9 +41,10 @@ class DeleteTest extends WebTestCase
         $this->assertFalse(key_exists('data', $responseContentAsArray));
     }
 
+    /** @covers \App\EventSubscriber\HttpNotFoundEventSubscriber */
     public function testDeleteShoppingCartFailsWithInvalidId(): void
     {
-        $client = $this->getClient();
+        $client = $this->createClient();
         $client->jsonRequest(Request::METHOD_DELETE, 'http://webserver/api/shoppingcarts/abcde');
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
@@ -48,9 +54,10 @@ class DeleteTest extends WebTestCase
         $this->assertFalse(key_exists('data', $responseContentAsArray));
     }
 
+    /** @covers \App\EventSubscriber\HttpNotFoundEventSubscriber */
     public function testDeleteShoppingCartFailsWithUnknownId(): void
     {
-        $client = $this->getClient();
+        $client = $this->createClient();
         $client->jsonRequest(
             Request::METHOD_DELETE,
             'http://webserver/api/shoppingcarts/49422ab6-a3e7-4440-9066-6ce601251494'
@@ -63,14 +70,17 @@ class DeleteTest extends WebTestCase
         $this->assertFalse(key_exists('data', $responseContentAsArray));
     }
 
+    /**
+     * @covers \App\Controller\ShoppingCartApiController::removeTablet
+     */
     public function testRemoveTabletFromShoppingCart(): void
     {
-        $client = $this->getClient();
+        $client = $this->createClient();
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
         $tabletId = '0bdea651-825f-4648-9cac-4b03f8f4576e';
         $client->jsonRequest(
             Request::METHOD_DELETE,
-            "http://webserver/api/cart/$shoppingCartId/products/$tabletId"
+            "http://webserver/api/shoppingcarts/$shoppingCartId/tablets/$tabletId"
         );
 
         $this->assertEquals(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
@@ -86,9 +96,10 @@ class DeleteTest extends WebTestCase
         $this->assertCount(0, $productsWithTabletId);
     }
 
+    /** @covers \App\EventSubscriber\HttpNotFoundEventSubscriber */
     public function testRemoveTabletFromShoppingCartFailsWithMissingTabletId(): void
     {
-        $client = $this->getClient();
+        $client = $this->createClient();
         $client->jsonRequest(
             Request::METHOD_DELETE,
             'http://webserver/api/shoppingcarts/5a2dc28e-1282-4e52-b90c-782c908a4e04/products/'
@@ -101,9 +112,10 @@ class DeleteTest extends WebTestCase
         $this->assertFalse(key_exists('data', $responseContentAsArray));
     }
 
+    /** @covers \App\EventSubscriber\HttpNotFoundEventSubscriber */
     public function testRemoveTabletFromShoppingCartFailsWithInvalidTabletId(): void
     {
-        $client = $this->getClient();
+        $client = $this->createClient();
         $client->jsonRequest(
             Request::METHOD_DELETE,
             "http://webserver/api/shoppingcarts/5a2dc28e-1282-4e52-b90c-782c908a4e04/products/abcde"
@@ -116,9 +128,10 @@ class DeleteTest extends WebTestCase
         $this->assertFalse(key_exists('data', $responseContentAsArray));
     }
 
+    /** @covers \App\EventSubscriber\HttpNotFoundEventSubscriber */
     public function testRemoveTabletFromShoppingCartFailsWithUnknownTabletId(): void
     {
-        $client = $this->getClient();
+        $client = $this->createClient();
         $client->jsonRequest(
             Request::METHOD_DELETE,
             "http://webserver/api/shoppingcarts/5a2dc28e-1282-4e52-b90c-782c908a4e04/products/6f36f4c5-5f99-4b97-a908-93a47662e435"
