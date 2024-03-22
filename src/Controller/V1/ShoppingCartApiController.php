@@ -2,14 +2,15 @@
 
 namespace App\Controller\V1;
 
+use App\Dto\ShoppingCartPatchDtoList;
 use App\Dto\ShoppingCartDto;
 use App\Entity\ShoppingCart;
 use App\Entity\Tablet;
+use App\ValueResolver\ShoppingCartPatchDtoListArgumentResolver;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -71,49 +72,15 @@ class ShoppingCartApiController extends AbstractController
     }
 
     #[Route('/{shoppingCart}', methods: ['PATCH'], format: 'json')]
-    public function update(ShoppingCart $shoppingCart, Request $request): JsonResponse
-    {
+    public function update(
+        ShoppingCart $shoppingCart,
+        #[MapRequestPayload(acceptFormat: 'json', resolver: ShoppingCartPatchDtoListArgumentResolver::class)]
+        ShoppingCartPatchDtoList $shoppingCartPatchDtoList
+    ): JsonResponse {
         $shoppingCartAsScalarArray = $shoppingCart->toScalarArray();
 
-        foreach ($request->getPayload()->all() as $patch) {
-            $propertyName = ltrim($patch['path'], '/');
-            if (in_array($propertyName, ['expiresAt']) === false) {
-                return new JsonResponse(
-                    [
-                        'errors' => [
-                            'status' => Response::HTTP_BAD_REQUEST,
-                            'title' => "Patch path \"{$patch['path']}\" not found or read-only"
-                        ]
-                    ],
-                    Response::HTTP_BAD_REQUEST,
-                );
-            }
-
-            if ($patch['op'] !== 'replace') {
-                return new JsonResponse(
-                    [
-                        'errors' => [
-                            'status' => Response::HTTP_BAD_REQUEST,
-                            'title' => "Patch operation \"{$patch['op']}\" not possible on entity"
-                        ]
-                    ],
-                    Response::HTTP_BAD_REQUEST,
-                );
-            }
-
-            if ($patch['value'] === '') {
-                return new JsonResponse(
-                    [
-                        'errors' => [
-                            'status' => Response::HTTP_BAD_REQUEST,
-                            'title' => "Patch value cannot be empty"
-                        ]
-                    ],
-                    Response::HTTP_BAD_REQUEST,
-                );
-            }
-
-            $shoppingCartAsScalarArray[ltrim($patch['path'], '/')] = $patch['value'];
+        foreach ($shoppingCartPatchDtoList->patches as $patch) {
+            $shoppingCartAsScalarArray[ltrim($patch->path, '/')] = $patch->value;
         }
 
         $shoppingCartDto = ShoppingCartDto::fromScalarArray($shoppingCartAsScalarArray);

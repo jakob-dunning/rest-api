@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @covers \App\Controller\V1\ShoppingCartApiController::delete
  * @covers \App\EventSubscriber\JsonResponseEventSubscriber
+ * @covers \App\Repository\ShoppingCartRepository
  */
 class DeleteTest extends WebTestCase
 {

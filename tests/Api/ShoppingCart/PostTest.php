@@ -14,6 +14,7 @@ use Tests\Api\AuthenticatedClientTrait;
 /**
  * @covers \App\Controller\V1\ShoppingCartApiController::create
  * @covers \App\EventSubscriber\JsonResponseEventSubscriber
+ * @covers \App\Repository\ShoppingCartRepository
  */
 class PostTest extends WebTestCase
 {
@@ -27,16 +28,14 @@ class PostTest extends WebTestCase
     {
         $client = $this->createAuthenticatedClient();
         $shoppingCartId = Uuid::v4()->toRfc4122();
-        $newShoppingCart =
-            [
-                'id' => $shoppingCartId,
-                'expiresAt' => (new \DateTime())->modify('+1 hour')->format(DATE_ATOM),
-                'tablets' => [],
-            ];
+        $expiresAt = (new \DateTime())->modify('+1 hour')->format(DATE_ATOM);
         $client->jsonRequest(
             Request::METHOD_POST,
             'http://webserver/api/shopping-carts/v1',
-            $newShoppingCart
+            [
+                'id' => $shoppingCartId,
+                'expiresAt' => $expiresAt,
+            ]
         );
 
         $this->assertEquals(Response::HTTP_CREATED, $client->getResponse()->getStatusCode());
@@ -48,7 +47,11 @@ class PostTest extends WebTestCase
         /* @var ShoppingCart $shoppingCart */
         $shoppingCart = $this->getContainer()->get(ShoppingCartRepository::class)->find($shoppingCartId);
 
-        $this->assertEquals($newShoppingCart, $shoppingCart->toScalarArray());
+        $this->assertEquals([
+            'id' => $shoppingCartId,
+            'expiresAt' => $expiresAt,
+            'tablets' => []
+        ], $shoppingCart->toScalarArray());
     }
 
     /**
@@ -59,15 +62,13 @@ class PostTest extends WebTestCase
     {
         $client = $this->createAuthenticatedClient();
         $shoppingCartId = Uuid::v4();
-        $newShoppingCart =
-            [
-                'id' => $shoppingCartId,
-                'expiresAt' => (new \DateTime())->modify('-1 hour')->format(DATE_ATOM)
-            ];
         $client->jsonRequest(
             Request::METHOD_POST,
             'http://webserver/api/shopping-carts/v1',
-            $newShoppingCart
+            [
+                'id' => $shoppingCartId,
+                'expiresAt' => (new \DateTime())->modify('-1 hour')->format(DATE_ATOM)
+            ]
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
@@ -78,6 +79,34 @@ class PostTest extends WebTestCase
 
         /* @var ShoppingCart $shoppingCart */
         $shoppingCart = $this->getContainer()->get(ShoppingCartRepository::class)->find($shoppingCartId);
+
+        $this->assertNull($shoppingCart);
+    }
+
+    /**
+     * @covers \App\EventSubscriber\PayloadFailedDeserializationEventSubscriber
+     */
+    public function testCreateShoppingCartFailsWithMalformedJson(): void
+    {
+        $client = $this->createAuthenticatedClient();
+        $newShoppingCartId = Uuid::v4();
+        $expiresAt = (new \DateTime())->modify('+1 hour')->format(DATE_ATOM);
+        $client->request(
+            Request::METHOD_POST,
+            "http://webserver/api/shopping-carts/v1",
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            "{'id':'$newShoppingCartId','expiresAt':'$expiresAt'}"
+        );
+
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
+        $this->assertTrue(key_exists('errors', $responseContentAsArray));
+        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
+        $this->assertFalse(key_exists('data', $responseContentAsArray));
+
+        $shoppingCart = $this->getContainer()->get(ShoppingCartRepository::class)->find($newShoppingCartId);
 
         $this->assertNull($shoppingCart);
     }

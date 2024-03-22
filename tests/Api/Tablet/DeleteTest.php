@@ -11,6 +11,7 @@ use Tests\Api\AuthenticatedClientTrait;
 /**
  * @covers \App\Controller\V1\TabletApiController::delete
  * @covers \App\EventSubscriber\JsonResponseEventSubscriber
+ * @covers \App\Repository\TabletRepository
  */
 class DeleteTest extends WebTestCase
 {
@@ -19,12 +20,12 @@ class DeleteTest extends WebTestCase
     public function testDeleteItem(): void
     {
         $client = $this->createAuthenticatedClient();
-        $itemId = '44682a67-fa83-4216-9e9d-5ea5dd5bf480';
-        $client->jsonRequest(Request::METHOD_DELETE, "http://webserver/api/tablets/v1/$itemId");
+        $tabletId = '44682a67-fa83-4216-9e9d-5ea5dd5bf480';
+        $client->jsonRequest(Request::METHOD_DELETE, "http://webserver/api/tablets/v1/$tabletId");
 
         $this->assertEquals(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
 
-        $tablet = $this->getContainer()->get(TabletRepository::class)->find($itemId);
+        $tablet = $this->getContainer()->get(TabletRepository::class)->find($tabletId);
 
         $this->assertNull($tablet);
     }

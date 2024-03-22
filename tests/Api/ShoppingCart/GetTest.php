@@ -10,6 +10,7 @@ use Tests\Api\AuthenticatedClientTrait;
 /**
  * @covers \App\Controller\V1\ShoppingCartApiController::show
  * @covers \App\EventSubscriber\JsonResponseEventSubscriber
+ * @covers \App\Repository\ShoppingCartRepository
  */
 class GetTest extends WebTestCase
 {

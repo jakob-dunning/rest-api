@@ -13,6 +13,7 @@ use Tests\Api\AuthenticatedClientTrait;
 /**
  * @covers \App\Controller\V1\TabletApiController::update
  * @covers \App\EventSubscriber\JsonResponseEventSubscriber
+ * @covers \App\Repository\TabletRepository
  * @uses   \App\Entity\Tablet
  */
 class PatchTest extends WebTestCase
@@ -23,14 +24,17 @@ class PatchTest extends WebTestCase
      * @dataProvider propertyProvider
      * @covers       \App\Dto\TabletDto
      * @covers       \App\Entity\Tablet
+     * @covers       \App\ValueResolver\TabletPatchDtoListArgumentResolver
+     * @covers       \App\Dto\TabletPatchDto
+     * @covers       \App\Dto\TabletPatchDtoList
      */
     public function testUpdateProperty(string $propertyName, string|int $propertyValue): void
     {
         $client = $this->createAuthenticatedClient();
-        $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
+        $tabletId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/tablets/v1/$itemId",
+            "http://webserver/api/tablets/v1/$tabletId",
             [
                 [
                     'op' => 'replace',
@@ -41,7 +45,7 @@ class PatchTest extends WebTestCase
         );
 
         $expectedItem = [
-            'id' => $itemId,
+            'id' => $tabletId,
             'manufacturer' => 'Asus',
             'model' => 'MeMO Pad HD 7',
             'price' => 3110,
@@ -51,7 +55,7 @@ class PatchTest extends WebTestCase
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
         $this->assertEquals(['data' => $expectedItem], json_decode($client->getResponse()->getContent(), true));
 
-        $tablet = $this->getContainer()->get(TabletRepository::class)->find($itemId);
+        $tablet = $this->getContainer()->get(TabletRepository::class)->find($tabletId);
         $this->assertEquals($expectedItem, $tablet->toScalarArray());
     }
 
@@ -96,14 +100,17 @@ class PatchTest extends WebTestCase
      * @dataProvider stringPropertyProvider
      * @covers       \App\EventSubscriber\PayloadFailedValidationEventSubscriber
      * @covers       \App\Dto\TabletDto
+     * @covers       \App\ValueResolver\TabletPatchDtoListArgumentResolver
+     * @covers       \App\Dto\TabletPatchDto
+     * @covers       \App\Dto\TabletPatchDtoList
      */
     public function testUpdatePropertyFailsWithEmptyStringProperty(string $propertyName): void
     {
         $client = $this->createAuthenticatedClient();
-        $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
+        $tabletId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/tablets/v1/$itemId",
+            "http://webserver/api/tablets/v1/$tabletId",
             [
                 [
                     'op' => 'replace',
@@ -113,9 +120,9 @@ class PatchTest extends WebTestCase
             ]
         );
 
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $client->getResponse()->getStatusCode());
 
-        $tablet = $this->getContainer()->get(TabletRepository::class)->find($itemId);
+        $tablet = $this->getContainer()->get(TabletRepository::class)->find($tabletId);
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertNotEquals('', $tablet->toScalarArray()[$propertyName]);
@@ -135,24 +142,28 @@ class PatchTest extends WebTestCase
         ];
     }
 
+    /**
+     * @covers       \App\ValueResolver\TabletPatchDtoListArgumentResolver
+     * @covers       \App\Dto\TabletPatchDto
+     * @covers       \App\Dto\TabletPatchDtoList
+     */
     public function testUpdatePropertyFailsWithOperationAdd(): void
     {
         $client = $this->createAuthenticatedClient();
-        $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
-        $newPropertyName = 'newProperty';
+        $tabletId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/tablets/v1/$itemId",
+            "http://webserver/api/tablets/v1/$tabletId",
             [
                 [
                     'op' => 'add',
-                    'path' => "/$newPropertyName",
+                    'path' => '/newProperty',
                     "value" => 'xyz'
                 ]
             ]
         );
 
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $client->getResponse()->getStatusCode());
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
@@ -160,25 +171,30 @@ class PatchTest extends WebTestCase
         $this->assertFalse(key_exists('data', $responseContentAsArray));
     }
 
+    /**
+     * @covers       \App\ValueResolver\TabletPatchDtoListArgumentResolver
+     * @covers       \App\Dto\TabletPatchDto
+     * @covers       \App\Dto\TabletPatchDtoList
+     */
     public function testUpdatePropertyFailsWithOperationRemove(): void
     {
         $client = $this->createAuthenticatedClient();
-        $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
+        $tabletId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/tablets/v1/$itemId",
+            "http://webserver/api/tablets/v1/$tabletId",
             [
                 [
                     'op' => 'remove',
-                    'path' => "/model",
+                    'path' => '/model',
                 ]
             ]
         );
 
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $client->getResponse()->getStatusCode());
 
         /* @var Tablet $tablet */
-        $tablet = $this->getContainer()->get(TabletRepository::class)->find($itemId);
+        $tablet = $this->getContainer()->get(TabletRepository::class)->find($tabletId);
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals('MeMO Pad HD 7', $tablet->getModel());
@@ -187,23 +203,28 @@ class PatchTest extends WebTestCase
         $this->assertFalse(key_exists('data', $responseContentAsArray));
     }
 
+    /**
+     * @covers       \App\ValueResolver\TabletPatchDtoListArgumentResolver
+     * @covers       \App\Dto\TabletPatchDto
+     * @covers       \App\Dto\TabletPatchDtoList
+     */
     public function testUpdatePropertyFailsWithOperationMove(): void
     {
         $client = $this->createAuthenticatedClient();
-        $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
+        $tabletId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/tablets/v1/$itemId",
+            "http://webserver/api/tablets/v1/$tabletId",
             [
                 [
                     'op' => 'move',
                     'from' => '/model',
-                    'path' => "/newModel",
+                    'path' => '/newModel',
                 ]
             ]
         );
 
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $client->getResponse()->getStatusCode());
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
@@ -211,13 +232,18 @@ class PatchTest extends WebTestCase
         $this->assertFalse(key_exists('data', $responseContentAsArray));
     }
 
+    /**
+     * @covers       \App\ValueResolver\TabletPatchDtoListArgumentResolver
+     * @covers       \App\Dto\TabletPatchDto
+     * @covers       \App\Dto\TabletPatchDtoList
+     */
     public function testUpdatePropertyFailsWithOperationCopy(): void
     {
         $client = $this->createAuthenticatedClient();
-        $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
+        $tabletId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/tablets/v1/$itemId",
+            "http://webserver/api/tablets/v1/$tabletId",
             [
                 [
                     'op' => 'move',
@@ -227,7 +253,7 @@ class PatchTest extends WebTestCase
             ]
         );
 
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $client->getResponse()->getStatusCode());
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
@@ -236,16 +262,19 @@ class PatchTest extends WebTestCase
     }
 
     /**
-     * @covers \App\EventSubscriber\PayloadFailedValidationEventSubscriber
-     * @covers \App\Dto\TabletDto
+     * @covers       \App\EventSubscriber\PayloadFailedValidationEventSubscriber
+     * @covers       \App\Dto\TabletDto
+     * @covers       \App\ValueResolver\TabletPatchDtoListArgumentResolver
+     * @covers       \App\Dto\TabletPatchDto
+     * @covers       \App\Dto\TabletPatchDtoList
      */
     public function testUpdatePropertyFailsWithUnknownProperty(): void
     {
-        $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
+        $tabletId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client = $this->createAuthenticatedClient();
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/tablets/v1/$itemId",
+            "http://webserver/api/tablets/v1/$tabletId",
             [
                 [
                     'op' => 'replace',
@@ -256,19 +285,24 @@ class PatchTest extends WebTestCase
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $client->getResponse()->getStatusCode());
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
     }
 
+    /**
+     * @covers       \App\ValueResolver\TabletPatchDtoListArgumentResolver
+     * @covers       \App\Dto\TabletPatchDto
+     * @covers       \App\Dto\TabletPatchDtoList
+     */
     public function testUpdateIdFails(): void
     {
         $client = $this->createAuthenticatedClient();
-        $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
+        $tabletId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/tablets/v1/$itemId",
+            "http://webserver/api/tablets/v1/$tabletId",
             [
                 [
                     'op' => 'replace',
@@ -278,59 +312,65 @@ class PatchTest extends WebTestCase
             ]
         );
 
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $client->getResponse()->getStatusCode());
 
         /* @var \App\Entity\Tablet $tablet */
-        $tablet = $this->getContainer()->get(TabletRepository::class)->find($itemId);
+        $tablet = $this->getContainer()->get(TabletRepository::class)->find($tabletId);
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals($itemId, $tablet->getId());
+        $this->assertEquals($tabletId, $tablet->getId());
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
     }
 
     /**
-     * @covers \App\EventSubscriber\PayloadFailedValidationEventSubscriber
-     * @covers \App\Dto\TabletDto
+     * @covers       \App\EventSubscriber\PayloadFailedValidationEventSubscriber
+     * @covers       \App\Dto\TabletDto
+     * @covers       \App\ValueResolver\TabletPatchDtoListArgumentResolver
+     * @covers       \App\Dto\TabletPatchDto
+     * @covers       \App\Dto\TabletPatchDtoList
      */
     public function testUpdatePriceFailsWithNegativePrice(): void
     {
         $client = $this->createAuthenticatedClient();
-        $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
+        $tabletId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/tablets/v1/$itemId",
+            "http://webserver/api/tablets/v1/$tabletId",
             [
                 [
                     'op' => 'replace',
-                    'path' => "/price",
+                    'path' => '/price',
                     "value" => -8000
                 ]
             ]
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $client->getResponse()->getStatusCode());
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
 
-        $tablet = $this->getContainer()->get(TabletRepository::class)->find($itemId);
+        $tablet = $this->getContainer()->get(TabletRepository::class)->find($tabletId);
         $this->assertEquals(3110, $tablet->getPrice());
     }
 
     /**
-     * @covers \App\EventSubscriber\PayloadFailedValidationEventSubscriber
-     * @covers \App\Dto\TabletDto
+     * @covers       \App\EventSubscriber\PayloadFailedValidationEventSubscriber
+     * @covers       \App\Dto\TabletDto
+     * @covers       \App\ValueResolver\TabletPatchDtoListArgumentResolver
+     * @covers       \App\Dto\TabletPatchDto
+     * @covers       \App\Dto\TabletPatchDtoList
      */
     public function testUpdatePriceFailsWithRidiculouslyHighPrice(): void
     {
         $client = $this->createAuthenticatedClient();
-        $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
+        $tabletId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/tablets/v1/$itemId",
+            "http://webserver/api/tablets/v1/$tabletId",
             [
                 [
                     'op' => 'replace',
@@ -341,12 +381,12 @@ class PatchTest extends WebTestCase
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $client->getResponse()->getStatusCode());
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
 
-        $tablet = $this->getContainer()->get(TabletRepository::class)->find($itemId);
+        $tablet = $this->getContainer()->get(TabletRepository::class)->find($tabletId);
 
         $this->assertEquals(3110, $tablet->getPrice());
     }
@@ -357,10 +397,10 @@ class PatchTest extends WebTestCase
     public function testUpdateFailsWithMalformedJson(): void
     {
         $client = $this->createAuthenticatedClient();
-        $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
+        $tabletId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->request(
             Request::METHOD_PATCH,
-            "http://webserver/api/tablets/v1/$itemId",
+            "http://webserver/api/tablets/v1/$tabletId",
             [],
             [],
             ['HTTP_CONTENT_TYPE' => 'application/json'],
@@ -373,24 +413,27 @@ class PatchTest extends WebTestCase
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
 
-        $tablet = $this->getContainer()->get(TabletRepository::class)->find($itemId);
+        $tablet = $this->getContainer()->get(TabletRepository::class)->find($tabletId);
 
         $this->assertEquals('MeMO Pad HD 7', $tablet->getModel());
     }
 
     /**
-     * @covers \App\Dto\TabletDto
-     * @covers \App\Entity\Tablet
+     * @covers       \App\Dto\TabletDto
+     * @covers       \App\Entity\Tablet
+     * @covers       \App\ValueResolver\TabletPatchDtoListArgumentResolver
+     * @covers       \App\Dto\TabletPatchDto
+     * @covers       \App\Dto\TabletPatchDtoList
      */
     public function testUpdateMultipleProperties(): void
     {
-        $itemId = '44682a67-fa83-4216-9e9d-5ea5dd5bf480';
+        $tabletId = '44682a67-fa83-4216-9e9d-5ea5dd5bf480';
         $newManufacturer = 'Acepad';
         $newModel = 'A145TB Flexi';
         $client = $this->createAuthenticatedClient();
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/tablets/v1/$itemId",
+            "http://webserver/api/tablets/v1/$tabletId",
             [
                 [
                     'op' => 'replace',
@@ -408,31 +451,34 @@ class PatchTest extends WebTestCase
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
         $this->assertEquals([
             'data' => [
-                'id' => $itemId,
+                'id' => $tabletId,
                 'manufacturer' => $newManufacturer,
                 'model' => $newModel,
                 'price' => 19900,
             ]
         ], json_decode($client->getResponse()->getContent(), true));
 
-        $tablet = $this->getContainer()->get(TabletRepository::class)->find($itemId);
+        $tablet = $this->getContainer()->get(TabletRepository::class)->find($tabletId);
 
         $this->assertEquals($newManufacturer, $tablet->getManufacturer());
         $this->assertEquals($newModel, $tablet->getModel());
     }
 
     /**
-     * @covers \App\EventSubscriber\PayloadFailedValidationEventSubscriber
-     * @covers \App\Dto\TabletDto
+     * @covers       \App\EventSubscriber\PayloadFailedValidationEventSubscriber
+     * @covers       \App\Dto\TabletDto
+     * @covers       \App\ValueResolver\TabletPatchDtoListArgumentResolver
+     * @covers       \App\Dto\TabletPatchDto
+     * @covers       \App\Dto\TabletPatchDtoList
      */
     public function testUpdateMultiplePropertiesFailsWithOneEmptyProperty(): void
     {
-        $itemId = '0bdea651-825f-4648-9cac-4b03f8f4576e';
+        $tabletId = '0bdea651-825f-4648-9cac-4b03f8f4576e';
         $newManufacturer = 'Asus';
         $client = $this->createAuthenticatedClient();
         $client->jsonRequest(
             Request::METHOD_PATCH,
-            "http://webserver/api/tablets/v1/$itemId",
+            "http://webserver/api/tablets/v1/$tabletId",
             [
                 [
                     'op' => 'replace',
@@ -448,12 +494,12 @@ class PatchTest extends WebTestCase
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $client->getResponse()->getStatusCode());
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
 
-        $tablet = $this->getContainer()->get(TabletRepository::class)->find($itemId);
+        $tablet = $this->getContainer()->get(TabletRepository::class)->find($tabletId);
 
         $this->assertEquals('Samsung', $tablet->getManufacturer());
         $this->assertEquals('Galaxy Tab A9+', $tablet->getModel());

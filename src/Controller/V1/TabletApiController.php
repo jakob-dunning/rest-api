@@ -3,15 +3,19 @@
 namespace App\Controller\V1;
 
 use App\Dto\TabletDto;
+use App\Dto\TabletPatchDtoList;
 use App\Entity\Tablet;
 use App\Repository\TabletRepository;
+use App\ValueResolver\TabletPatchDtoListArgumentResolver;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/api/tablets/v1')]
@@ -53,55 +57,30 @@ class TabletApiController extends AbstractController
 
         return new JsonResponse(
             ['data' => sprintf('http://localhost/api/tablets/v1/%s', $tablet->getId()->toRfc4122())],
-            201,
+            Response::HTTP_CREATED,
         );
     }
 
     #[Route('/{id}', methods: ['PATCH'], format: 'json')]
-    public function update(Tablet $tablet, Request $request): JsonResponse
-    {
+    public function update(
+        Tablet $tablet,
+        #[MapRequestPayload(acceptFormat: 'json', resolver: TabletPatchDtoListArgumentResolver::class)]
+        TabletPatchDtoList $tabletPatchDtoList
+    ): JsonResponse {
         $tabletAsScalarArray = $tablet->toScalarArray();
 
-        foreach ($request->getPayload()->all() as $patch) {
-            if (in_array(ltrim($patch['path'], '/'), ['manufacturer','model', 'price']) === false) {
-                return new JsonResponse(
-                    [
-                        'errors' => [
-                            'status' => Response::HTTP_BAD_REQUEST,
-                            'title' => "Patch path \"{$patch['path']}\" not found or read-only"
-                        ]
-                    ],
-                    Response::HTTP_BAD_REQUEST,
-                );
-            }
-
-            if ($patch['op'] !== 'replace') {
-                return new JsonResponse(
-                    [
-                        'errors' => [
-                            'status' => Response::HTTP_BAD_REQUEST,
-                            'title' => "Patch operation \"{$patch['op']}\" not possible on entity"
-                        ]
-                    ],
-                    Response::HTTP_BAD_REQUEST,
-                );
-            }
-
-            $tabletAsScalarArray[ltrim($patch['path'], '/')] = $patch['value'];
+        foreach ($tabletPatchDtoList->patches as $patch) {
+            $tabletAsScalarArray[ltrim($patch->path, '/')] = $patch->value;
         }
 
         $tabletDto = TabletDto::fromScalarArray($tabletAsScalarArray);
         $constraintViolationList = $this->validator->validate($tabletDto);
 
         if ($constraintViolationList->count() !== 0) {
-            $errorMessages = [];
-            foreach ($constraintViolationList as $violation) {
-                $errorMessages[$violation->getPropertyPath()] = $violation->getMessage();
-            }
-
-            return new JsonResponse(
-                ['errors' => $errorMessages],
-                Response::HTTP_BAD_REQUEST,
+            throw new HttpException(
+                Response::HTTP_UNPROCESSABLE_ENTITY,
+                '',
+                new ValidationFailedException('', $constraintViolationList)
             );
         }
 

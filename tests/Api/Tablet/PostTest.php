@@ -12,6 +12,7 @@ use Tests\Api\AuthenticatedClientTrait;
 /**
  * @covers \App\Controller\V1\TabletApiController::create
  * @covers \App\EventSubscriber\JsonResponseEventSubscriber
+ * @covers \App\Repository\TabletRepository
  */
 class PostTest extends WebTestCase
 {
@@ -24,9 +25,9 @@ class PostTest extends WebTestCase
     public function testCreateNewItem(): void
     {
         $client = $this->createAuthenticatedClient();
-        $newItemId = Uuid::v4();
+        $newTabletId = Uuid::v4();
         $newItem = [
-            'id' => $newItemId->toRfc4122(),
+            'id' => $newTabletId->toRfc4122(),
             'manufacturer' => 'Xiaomi',
             'model' => 'Redmi Pad SE',
             'price' => 19799
@@ -39,11 +40,11 @@ class PostTest extends WebTestCase
 
         $this->assertEquals(Response::HTTP_CREATED, $client->getResponse()->getStatusCode());
         $this->assertEquals(
-            ['data' => "http://localhost/api/tablets/v1/$newItemId"],
+            ['data' => "http://localhost/api/tablets/v1/$newTabletId"],
             json_decode($client->getResponse()->getContent(), true)
         );
 
-        $tablet = $this->getContainer()->get(TabletRepository::class)->find($newItemId);
+        $tablet = $this->getContainer()->get(TabletRepository::class)->find($newTabletId);
 
         $this->assertEquals($newItem, $tablet->toScalarArray());
     }
@@ -81,9 +82,9 @@ class PostTest extends WebTestCase
     public function testCreateNewItemFailsWithEmptyStringProperty(string $propertyName): void
     {
         $client = $this->createAuthenticatedClient();
-        $newItemId = Uuid::v4();
+        $newTabletId = Uuid::v4();
         $newItem = [
-            'id' => $newItemId,
+            'id' => $newTabletId,
             'manufacturer' => 'Xiaomi',
             'model' => 'Redmi Pad SE',
             'price' => 19799
@@ -101,7 +102,7 @@ class PostTest extends WebTestCase
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
 
-        $tablet = $this->getContainer()->get(TabletRepository::class)->find($newItemId);
+        $tablet = $this->getContainer()->get(TabletRepository::class)->find($newTabletId);
 
         $this->assertNull($tablet);
     }
@@ -124,9 +125,9 @@ class PostTest extends WebTestCase
     public function testCreateNewItemFailsWithNegativePrice(): void
     {
         $client = $this->createAuthenticatedClient();
-        $newItemId = Uuid::v4();
+        $newTabletId = Uuid::v4();
         $client->jsonRequest(Request::METHOD_POST, "http://webserver/api/tablets/v1", [
-            'id' => $newItemId,
+            'id' => $newTabletId,
             'manufacturer' => 'Xiaomi',
             'model' => 'Redmi Pad SE',
             'price' => -7000
@@ -138,7 +139,7 @@ class PostTest extends WebTestCase
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
 
-        $tablet = $this->getContainer()->get(TabletRepository::class)->find($newItemId);
+        $tablet = $this->getContainer()->get(TabletRepository::class)->find($newTabletId);
 
         $this->assertNull($tablet);
     }
@@ -150,9 +151,9 @@ class PostTest extends WebTestCase
     public function testCreateNewItemFailsWithRidiculouslyHighPrice(): void
     {
         $client = $this->createAuthenticatedClient();
-        $newItemId = Uuid::v4();
+        $newTabletId = Uuid::v4();
         $client->jsonRequest(Request::METHOD_POST, "http://webserver/api/tablets/v1", [
-            'id' => $newItemId,
+            'id' => $newTabletId,
             'manufacturer' => 'Xiaomi',
             'model' => 'Redmi Pad SE',
             'price' => 100000000
@@ -164,7 +165,7 @@ class PostTest extends WebTestCase
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
 
-        $tablet = $this->getContainer()->get(TabletRepository::class)->find($newItemId);
+        $tablet = $this->getContainer()->get(TabletRepository::class)->find($newTabletId);
 
         $this->assertNull($tablet);
     }
@@ -177,9 +178,9 @@ class PostTest extends WebTestCase
     public function testCreateNewItemFailsWithMissingProperty(string $propertyName): void
     {
         $client = $this->createAuthenticatedClient();
-        $newItemId = Uuid::v4();
+        $newTabletId = Uuid::v4();
         $newItem = [
-            'id' => $newItemId,
+            'id' => $newTabletId,
             'manufacturer' => 'Xiaomi',
             'model' => 'Redmi Pad SE',
             'price' => 17999
@@ -197,7 +198,7 @@ class PostTest extends WebTestCase
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
 
-        $tablet = $this->getContainer()->get(TabletRepository::class)->find($newItemId);
+        $tablet = $this->getContainer()->get(TabletRepository::class)->find($newTabletId);
 
         $this->assertNull($tablet);
     }
@@ -208,14 +209,14 @@ class PostTest extends WebTestCase
     public function testCreateNewItemFailsWithMalformedJson(): void
     {
         $client = $this->createAuthenticatedClient();
-        $newItemId = Uuid::v4();
+        $newTabletId = Uuid::v4();
         $client->request(
             Request::METHOD_POST,
             "http://webserver/api/tablets/v1",
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
-            "{'id':'$newItemId','manufacturer':'xiaomi','model':'Redmi Note 4','price':9999}"
+            "{'id':'$newTabletId','manufacturer':'xiaomi','model':'Redmi Note 4','price':9999}"
         );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
@@ -224,7 +225,7 @@ class PostTest extends WebTestCase
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
 
-        $tablet = $this->getContainer()->get(TabletRepository::class)->find($newItemId);
+        $tablet = $this->getContainer()->get(TabletRepository::class)->find($newTabletId);
 
         $this->assertNull($tablet);
     }

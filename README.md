@@ -22,6 +22,9 @@ It must be possible to:
 - Replace returning error responses in controllers with exceptions and handle formatting in eventsubscriber
 - Implement Etag
 - Add caching headers
+- Add format=json to all routes
+- test all routes are inaccessible without autorization
+- Send location in location header on POST and PATCH? method
 
 ## References
 - https://levelup.gitconnected.com/how-to-properly-handle-requests-with-symfony-6-3-0bfc8d7726a9
