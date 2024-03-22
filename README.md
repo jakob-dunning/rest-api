@@ -13,9 +13,7 @@ It must be possible to:
 ## Todo
 
 - Don't run nginx, postgres or php as root inside docker containers
-- Add authorization features to the API
 - Serve API though HTTPS only
-- Add make setup target
 - Add documentation
 - Remove hardcoded url for webserver from api tests
 - Sanitize output to prevent corruption
