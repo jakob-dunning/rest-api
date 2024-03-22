@@ -19,7 +19,6 @@ It must be possible to:
 - Sanitize output to prevent corruption
 - Adher to JSON:API standards
 - Implement HEAD?
-- Replace returning error responses in controllers with exceptions and handle formatting in eventsubscriber
 - Implement Etag
 - Add caching headers
 - test all routes are inaccessible without autorization
