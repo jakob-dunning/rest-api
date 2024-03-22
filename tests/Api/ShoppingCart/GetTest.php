@@ -2,7 +2,10 @@
 
 namespace Tests\Api\ShoppingCart;
 
+use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Encoder\LcobucciJWTEncoder;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Tests\Api\AuthenticatedClientTrait;
 
 /**
  * @covers \App\Controller\V1\ShoppingCartApiController::show
@@ -10,12 +13,20 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
  */
 class GetTest extends WebTestCase
 {
+    use AuthenticatedClientTrait;
+
     /**
      * @covers \App\Entity\ShoppingCart::__construct
      */
     public function testShowShoppingCart(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
+        /* @var LcobucciJWTEncoder $encoder */
+        $encoder = $client->getContainer()->get(JWTEncoderInterface::class);
+        $client->setServerParameter(
+            'HTTP_Authorization',
+            sprintf('Bearer %s', $encoder->encode(['username' => 'test@test.com']))
+        );
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
         $client->jsonRequest(
             'GET',
@@ -51,7 +62,13 @@ class GetTest extends WebTestCase
     /** @covers \App\EventSubscriber\HttpNotFoundEventSubscriber */
     public function testShowShoppingCartFailsWithMissingId(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
+        /* @var LcobucciJWTEncoder $encoder */
+        $encoder = $client->getContainer()->get(JWTEncoderInterface::class);
+        $client->setServerParameter(
+            'HTTP_Authorization',
+            sprintf('Bearer %s', $encoder->encode(['username' => 'test@test.com']))
+        );
         $client->jsonRequest(
             'GET',
             'http://webserver/api/shopping-carts/v1/'
@@ -67,7 +84,13 @@ class GetTest extends WebTestCase
     /** @covers \App\EventSubscriber\HttpNotFoundEventSubscriber */
     public function testShowShoppingCartFailsWithInvalidId(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
+        /* @var LcobucciJWTEncoder $encoder */
+        $encoder = $client->getContainer()->get(JWTEncoderInterface::class);
+        $client->setServerParameter(
+            'HTTP_Authorization',
+            sprintf('Bearer %s', $encoder->encode(['username' => 'test@test.com']))
+        );
         $client->jsonRequest(
             'GET',
             'http://webserver/api/shopping-carts/v1/abcde'
@@ -83,7 +106,13 @@ class GetTest extends WebTestCase
     /** @covers \App\EventSubscriber\HttpNotFoundEventSubscriber */
     public function testShowShoppingCartFailsWithUnknownId(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
+        /* @var LcobucciJWTEncoder $encoder */
+        $encoder = $client->getContainer()->get(JWTEncoderInterface::class);
+        $client->setServerParameter(
+            'HTTP_Authorization',
+            sprintf('Bearer %s', $encoder->encode(['username' => 'test@test.com']))
+        );
         $shoppingCartId = '47eaaaa1-4fde-4c91-a426-9064dd79a354';
         $client->jsonRequest(
             'GET',

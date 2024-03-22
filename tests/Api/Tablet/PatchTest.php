@@ -8,6 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Uid\Uuid;
+use Tests\Api\AuthenticatedClientTrait;
 
 /**
  * @covers \App\Controller\V1\TabletApiController::update
@@ -16,6 +17,8 @@ use Symfony\Component\Uid\Uuid;
  */
 class PatchTest extends WebTestCase
 {
+    use AuthenticatedClientTrait;
+
     /**
      * @dataProvider propertyProvider
      * @covers       \App\Dto\TabletDto
@@ -23,7 +26,7 @@ class PatchTest extends WebTestCase
      */
     public function testUpdateProperty(string $propertyName, string|int $propertyValue): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
         $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
             Request::METHOD_PATCH,
@@ -69,7 +72,7 @@ class PatchTest extends WebTestCase
      */
     public function testUpdatePropertyFailsWithMissingId(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
         $client->jsonRequest(
             Request::METHOD_PATCH,
             'http://webserver/api/tablets/v1/',
@@ -96,7 +99,7 @@ class PatchTest extends WebTestCase
      */
     public function testUpdatePropertyFailsWithEmptyStringProperty(string $propertyName): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
         $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
             Request::METHOD_PATCH,
@@ -134,7 +137,7 @@ class PatchTest extends WebTestCase
 
     public function testUpdatePropertyFailsWithOperationAdd(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
         $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $newPropertyName = 'newProperty';
         $client->jsonRequest(
@@ -159,7 +162,7 @@ class PatchTest extends WebTestCase
 
     public function testUpdatePropertyFailsWithOperationRemove(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
         $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
             Request::METHOD_PATCH,
@@ -186,7 +189,7 @@ class PatchTest extends WebTestCase
 
     public function testUpdatePropertyFailsWithOperationMove(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
         $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
             Request::METHOD_PATCH,
@@ -210,7 +213,7 @@ class PatchTest extends WebTestCase
 
     public function testUpdatePropertyFailsWithOperationCopy(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
         $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
             Request::METHOD_PATCH,
@@ -239,7 +242,7 @@ class PatchTest extends WebTestCase
     public function testUpdatePropertyFailsWithUnknownProperty(): void
     {
         $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
         $client->jsonRequest(
             Request::METHOD_PATCH,
             "http://webserver/api/tablets/v1/$itemId",
@@ -261,7 +264,7 @@ class PatchTest extends WebTestCase
 
     public function testUpdateIdFails(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
         $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
             Request::METHOD_PATCH,
@@ -293,7 +296,7 @@ class PatchTest extends WebTestCase
      */
     public function testUpdatePriceFailsWithNegativePrice(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
         $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
             Request::METHOD_PATCH,
@@ -323,7 +326,7 @@ class PatchTest extends WebTestCase
      */
     public function testUpdatePriceFailsWithRidiculouslyHighPrice(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
         $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
             Request::METHOD_PATCH,
@@ -353,7 +356,7 @@ class PatchTest extends WebTestCase
      */
     public function testUpdateFailsWithMalformedJson(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
         $itemId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->request(
             Request::METHOD_PATCH,
@@ -384,7 +387,7 @@ class PatchTest extends WebTestCase
         $itemId = '44682a67-fa83-4216-9e9d-5ea5dd5bf480';
         $newManufacturer = 'Acepad';
         $newModel = 'A145TB Flexi';
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
         $client->jsonRequest(
             Request::METHOD_PATCH,
             "http://webserver/api/tablets/v1/$itemId",
@@ -426,7 +429,7 @@ class PatchTest extends WebTestCase
     {
         $itemId = '0bdea651-825f-4648-9cac-4b03f8f4576e';
         $newManufacturer = 'Asus';
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
         $client->jsonRequest(
             Request::METHOD_PATCH,
             "http://webserver/api/tablets/v1/$itemId",

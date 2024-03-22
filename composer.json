@@ -46,7 +46,8 @@
     "symfony/serializer": "^7.0",
     "symfony/event-dispatcher": "^7.0",
     "symfony/browser-kit": "^7.0",
-    "symfony/expression-language": "^7.0"
+    "symfony/expression-language": "^7.0",
+    "lexik/jwt-authentication-bundle": "^2.20"
   },
   "require-dev": {
     "ext-xml": "*",

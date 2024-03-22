@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Uid\Uuid;
+use Tests\Api\AuthenticatedClientTrait;
 
 /**
  * @covers \App\Controller\V1\ShoppingCartApiController::create
@@ -16,13 +17,15 @@ use Symfony\Component\Uid\Uuid;
  */
 class PostTest extends WebTestCase
 {
+    use AuthenticatedClientTrait;
+
     /**
      * @covers \App\Dto\ShoppingCartDto
      * @covers \App\Entity\ShoppingCart
      */
     public function testCreateShoppingCart(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
         $shoppingCartId = Uuid::v4()->toRfc4122();
         $newShoppingCart =
             [
@@ -54,7 +57,7 @@ class PostTest extends WebTestCase
      */
     public function testCreateShoppingCartFailsWithDateInThePast(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
         $shoppingCartId = Uuid::v4();
         $newShoppingCart =
             [
@@ -86,7 +89,7 @@ class PostTest extends WebTestCase
      */
     public function testAddTabletToShoppingCart(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
         $tabletId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
@@ -117,7 +120,7 @@ class PostTest extends WebTestCase
      */
     public function testAddTabletToShoppingCartFailsWithMissingTabletId(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
         $client->jsonRequest(
             Request::METHOD_POST,
@@ -136,7 +139,7 @@ class PostTest extends WebTestCase
      */
     public function testAddTabletToShoppingCartFailsWithEmptyId(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
         $client->jsonRequest(
             Request::METHOD_POST,
@@ -156,7 +159,7 @@ class PostTest extends WebTestCase
      */
     public function testAddTabletToShoppingCartFailsWithInvalidId(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
         $client->jsonRequest(
             Request::METHOD_POST,
@@ -176,7 +179,7 @@ class PostTest extends WebTestCase
      */
     public function testAddTabletToShoppingCartFailsWithUnknownId(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
         $client->jsonRequest(
             Request::METHOD_POST,

@@ -7,6 +7,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Uid\Uuid;
+use Tests\Api\AuthenticatedClientTrait;
 
 /**
  * @covers \App\Controller\V1\TabletApiController::create
@@ -14,13 +15,15 @@ use Symfony\Component\Uid\Uuid;
  */
 class PostTest extends WebTestCase
 {
+    use AuthenticatedClientTrait;
+
     /**
      * @covers \App\Entity\Tablet
      * @covers \App\Dto\TabletDto
      */
     public function testCreateNewItem(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
         $newItemId = Uuid::v4();
         $newItem = [
             'id' => $newItemId->toRfc4122(),
@@ -51,7 +54,7 @@ class PostTest extends WebTestCase
      */
     public function testCreateNewItemFailsWithInvalidId(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
         $client->jsonRequest(
             Request::METHOD_POST,
             "http://webserver/api/tablets/v1",
@@ -77,7 +80,7 @@ class PostTest extends WebTestCase
      */
     public function testCreateNewItemFailsWithEmptyStringProperty(string $propertyName): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
         $newItemId = Uuid::v4();
         $newItem = [
             'id' => $newItemId,
@@ -120,7 +123,7 @@ class PostTest extends WebTestCase
      */
     public function testCreateNewItemFailsWithNegativePrice(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
         $newItemId = Uuid::v4();
         $client->jsonRequest(Request::METHOD_POST, "http://webserver/api/tablets/v1", [
             'id' => $newItemId,
@@ -146,7 +149,7 @@ class PostTest extends WebTestCase
      */
     public function testCreateNewItemFailsWithRidiculouslyHighPrice(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
         $newItemId = Uuid::v4();
         $client->jsonRequest(Request::METHOD_POST, "http://webserver/api/tablets/v1", [
             'id' => $newItemId,
@@ -173,7 +176,7 @@ class PostTest extends WebTestCase
      */
     public function testCreateNewItemFailsWithMissingProperty(string $propertyName): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
         $newItemId = Uuid::v4();
         $newItem = [
             'id' => $newItemId,
@@ -204,7 +207,7 @@ class PostTest extends WebTestCase
      */
     public function testCreateNewItemFailsWithMalformedJson(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
         $newItemId = Uuid::v4();
         $client->request(
             Request::METHOD_POST,

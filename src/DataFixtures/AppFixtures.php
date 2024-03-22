@@ -4,8 +4,10 @@ namespace App\DataFixtures;
 
 use App\Entity\ShoppingCart;
 use App\Entity\Tablet;
+use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Uid\UuidV4;
 
 class AppFixtures extends Fixture
@@ -49,6 +51,13 @@ class AppFixtures extends Fixture
         $shoppingCart->addTablet($lenovoTablet);
         $shoppingCart->addTablet($samsungTablet);
         $entityManager->persist($shoppingCart);
+
+        $user = new User(
+            Uuid::v4(),
+            'test@test.com',
+            '$2y$13$lvbKDQgxr//hyrRxPOedvupMn7kFo.SOe9qSZiaKHOLQGiSeqtsdG',
+        );
+        $entityManager->persist($user);
 
         $entityManager->flush();
     }

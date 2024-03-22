@@ -20,9 +20,7 @@ class ShoppingCart implements \JsonSerializable
         private UuidV4 $id,
         #[ORM\Column(type: 'datetimetz')]
         private \DateTime $expiresAt,
-        /**
-         * @var ArrayCollection<int, Tablet>
-         */
+        /** @var ArrayCollection<int, Tablet> */
         #[ORM\JoinTable(name: 'tablets_in_shoppingcarts')]
         #[ORM\JoinColumn(name: 'shoppingcart_id', referencedColumnName: 'id', onDelete: 'cascade')]
         #[ORM\InverseJoinColumn(name: 'tablet_id', referencedColumnName: 'id', unique: true, onDelete: 'cascade')]

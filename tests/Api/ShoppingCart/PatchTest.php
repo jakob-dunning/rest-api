@@ -4,9 +4,12 @@ namespace Tests\Api\ShoppingCart;
 
 use App\Entity\ShoppingCart;
 use App\Repository\ShoppingCartRepository;
+use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Encoder\LcobucciJWTEncoder;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Tests\Api\AuthenticatedClientTrait;
 
 /**
  * @covers \App\Controller\V1\ShoppingCartApiController::update
@@ -14,13 +17,15 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class PatchTest extends WebTestCase
 {
+    use AuthenticatedClientTrait;
+
     /**
      * @covers \App\Entity\ShoppingCart
      * @covers \App\Dto\ShoppingCartDto
      */
     public function testUpdateExpiresAt(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
         $expiresAt = (new \DateTime())->modify('+1 hour')->format(DATE_ATOM);
         $client->jsonRequest(
@@ -71,7 +76,13 @@ class PatchTest extends WebTestCase
      */
     public function testUpdateExpiresAtFailsWithDateInThePast(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
+        /* @var LcobucciJWTEncoder $encoder */
+        $encoder = $client->getContainer()->get(JWTEncoderInterface::class);
+        $client->setServerParameter(
+            'HTTP_Authorization',
+            sprintf('Bearer %s', $encoder->encode(['username' => 'test@test.com']))
+        );
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
         $expiresAt = (new \DateTime())->format(DATE_ATOM);
         $client->jsonRequest(
@@ -99,7 +110,13 @@ class PatchTest extends WebTestCase
 
     public function testUpdateExpiresAtFailsWithEmptyDate(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
+        /* @var LcobucciJWTEncoder $encoder */
+        $encoder = $client->getContainer()->get(JWTEncoderInterface::class);
+        $client->setServerParameter(
+            'HTTP_Authorization',
+            sprintf('Bearer %s', $encoder->encode(['username' => 'test@test.com']))
+        );
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
         $client->jsonRequest(
             Request::METHOD_PATCH,
@@ -130,7 +147,13 @@ class PatchTest extends WebTestCase
      */
     public function testUpdateExpiresAtFailsWithDateFormatNotIso8601(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
+        /* @var LcobucciJWTEncoder $encoder */
+        $encoder = $client->getContainer()->get(JWTEncoderInterface::class);
+        $client->setServerParameter(
+            'HTTP_Authorization',
+            sprintf('Bearer %s', $encoder->encode(['username' => 'test@test.com']))
+        );
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
         $expiresAt = (new \DateTime())->format(DATE_RFC1036);
         $client->jsonRequest(
@@ -158,7 +181,13 @@ class PatchTest extends WebTestCase
 
     public function testUpdateIdFails(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
+        /* @var LcobucciJWTEncoder $encoder */
+        $encoder = $client->getContainer()->get(JWTEncoderInterface::class);
+        $client->setServerParameter(
+            'HTTP_Authorization',
+            sprintf('Bearer %s', $encoder->encode(['username' => 'test@test.com']))
+        );
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
         $client->jsonRequest(
             Request::METHOD_PATCH,
@@ -185,7 +214,13 @@ class PatchTest extends WebTestCase
 
     public function testUpdatePropertyFailsWithOperationAdd(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
+        /* @var LcobucciJWTEncoder $encoder */
+        $encoder = $client->getContainer()->get(JWTEncoderInterface::class);
+        $client->setServerParameter(
+            'HTTP_Authorization',
+            sprintf('Bearer %s', $encoder->encode(['username' => 'test@test.com']))
+        );
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
         $newPropertyName = 'newProperty';
         $client->jsonRequest(
@@ -210,7 +245,13 @@ class PatchTest extends WebTestCase
 
     public function testUpdatePropertyFailsWithOperationRemove(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
+        /* @var LcobucciJWTEncoder $encoder */
+        $encoder = $client->getContainer()->get(JWTEncoderInterface::class);
+        $client->setServerParameter(
+            'HTTP_Authorization',
+            sprintf('Bearer %s', $encoder->encode(['username' => 'test@test.com']))
+        );
         $itemId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
         $client->jsonRequest(
             Request::METHOD_PATCH,
@@ -237,7 +278,13 @@ class PatchTest extends WebTestCase
 
     public function testUpdatePropertyFailsWithOperationMove(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
+        /* @var LcobucciJWTEncoder $encoder */
+        $encoder = $client->getContainer()->get(JWTEncoderInterface::class);
+        $client->setServerParameter(
+            'HTTP_Authorization',
+            sprintf('Bearer %s', $encoder->encode(['username' => 'test@test.com']))
+        );
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
         $client->jsonRequest(
             Request::METHOD_PATCH,
@@ -260,7 +307,13 @@ class PatchTest extends WebTestCase
 
     public function testUpdatePropertyFailsWithOperationCopy(): void
     {
-        $client = $this->createClient();
+        $client = $this->createAuthenticatedClient();
+        /* @var LcobucciJWTEncoder $encoder */
+        $encoder = $client->getContainer()->get(JWTEncoderInterface::class);
+        $client->setServerParameter(
+            'HTTP_Authorization',
+            sprintf('Bearer %s', $encoder->encode(['username' => 'test@test.com']))
+        );
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
         $client->jsonRequest(
             Request::METHOD_PATCH,
