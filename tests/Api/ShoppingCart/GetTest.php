@@ -21,12 +21,6 @@ class GetTest extends WebTestCase
     public function testShowShoppingCart(): void
     {
         $client = $this->createAuthenticatedClient();
-        /* @var LcobucciJWTEncoder $encoder */
-        $encoder = $client->getContainer()->get(JWTEncoderInterface::class);
-        $client->setServerParameter(
-            'HTTP_Authorization',
-            sprintf('Bearer %s', $encoder->encode(['username' => 'test@test.com']))
-        );
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
         $client->jsonRequest(
             'GET',
@@ -63,12 +57,6 @@ class GetTest extends WebTestCase
     public function testShowShoppingCartFailsWithMissingId(): void
     {
         $client = $this->createAuthenticatedClient();
-        /* @var LcobucciJWTEncoder $encoder */
-        $encoder = $client->getContainer()->get(JWTEncoderInterface::class);
-        $client->setServerParameter(
-            'HTTP_Authorization',
-            sprintf('Bearer %s', $encoder->encode(['username' => 'test@test.com']))
-        );
         $client->jsonRequest(
             'GET',
             'http://webserver/api/shopping-carts/v1/'
@@ -85,12 +73,6 @@ class GetTest extends WebTestCase
     public function testShowShoppingCartFailsWithInvalidId(): void
     {
         $client = $this->createAuthenticatedClient();
-        /* @var LcobucciJWTEncoder $encoder */
-        $encoder = $client->getContainer()->get(JWTEncoderInterface::class);
-        $client->setServerParameter(
-            'HTTP_Authorization',
-            sprintf('Bearer %s', $encoder->encode(['username' => 'test@test.com']))
-        );
         $client->jsonRequest(
             'GET',
             'http://webserver/api/shopping-carts/v1/abcde'
@@ -107,12 +89,6 @@ class GetTest extends WebTestCase
     public function testShowShoppingCartFailsWithUnknownId(): void
     {
         $client = $this->createAuthenticatedClient();
-        /* @var LcobucciJWTEncoder $encoder */
-        $encoder = $client->getContainer()->get(JWTEncoderInterface::class);
-        $client->setServerParameter(
-            'HTTP_Authorization',
-            sprintf('Bearer %s', $encoder->encode(['username' => 'test@test.com']))
-        );
         $shoppingCartId = '47eaaaa1-4fde-4c91-a426-9064dd79a354';
         $client->jsonRequest(
             'GET',
