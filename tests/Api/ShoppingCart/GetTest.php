@@ -29,12 +29,12 @@ class GetTest extends WebTestCase
         );
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
-        $this->assertEqualsCanonicalizing(
+        $this->assertEquals(
             [
                 'data' => [
                     'id' => $shoppingCartId,
                     'expiresAt' => '2024-03-17T12:44:00+00:00',
-                    'products' => [
+                    'tablets' => [
                         [
                             'id' => '44682a67-fa83-4216-9e9d-5ea5dd5bf480',
                             'manufacturer' => 'Lenovo',

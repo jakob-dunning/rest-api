@@ -25,7 +25,7 @@ class GetTest extends WebTestCase
         $client->jsonRequest(Request::METHOD_GET, 'http://webserver/api/tablets/v1');
 
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
-        $this->assertEqualsCanonicalizing(
+        $this->assertEquals(
             [
                 'data' => [
                     [

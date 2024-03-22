@@ -56,8 +56,9 @@ class TabletApiController extends AbstractController
         $this->entityManager->flush();
 
         return new JsonResponse(
-            ['data' => sprintf('http://localhost/api/tablets/v1/%s', $tablet->getId()->toRfc4122())],
+            ['data' => $tablet],
             Response::HTTP_CREATED,
+            ['Location' => sprintf('http://localhost/api/tablets/v1/%s', $tablet->getId())]
         );
     }
 
@@ -92,6 +93,7 @@ class TabletApiController extends AbstractController
         return new JsonResponse(
             ['data' => $tablet],
             Response::HTTP_OK,
+            ['Location' => sprintf('http://localhost/api/tablets/v1/%s', $tablet->getId())]
         );
     }
 

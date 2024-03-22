@@ -40,8 +40,18 @@ class PostTest extends WebTestCase
 
         $this->assertEquals(Response::HTTP_CREATED, $client->getResponse()->getStatusCode());
         $this->assertEquals(
-            ['data' => "http://localhost/api/shopping-carts/v1/$shoppingCartId"],
+            [
+                'data' => [
+                    'id' => $shoppingCartId,
+                    'expiresAt' => $expiresAt,
+                    'tablets' => []
+                ]
+            ],
             json_decode($client->getResponse()->getContent(), true)
+        );
+        $this->assertResponseHeaderSame(
+            'Location',
+            "http://localhost/api/shopping-carts/v1/$shoppingCartId"
         );
 
         /* @var ShoppingCart $shoppingCart */
@@ -129,8 +139,37 @@ class PostTest extends WebTestCase
 
         $this->assertEquals(Response::HTTP_CREATED, $client->getResponse()->getStatusCode());
         $this->assertEquals(
-            ['data' => "http://localhost/api/shopping-carts/v1/$shoppingCartId/tablets/$tabletId"],
+            [
+                'data' => [
+                    'id' => '5a2dc28e-1282-4e52-b90c-782c908a4e04',
+                    'expiresAt' => '2024-03-17T12:44:00+00:00',
+                    'tablets' => [
+                        [
+                            'id' => '44682a67-fa83-4216-9e9d-5ea5dd5bf480',
+                            'manufacturer' => 'Lenovo',
+                            'model' => 'Tab M9',
+                            'price' => 19900
+                        ],
+                        [
+                            'id' => '5c82f07f-3a47-422b-b423-efc3b782ec56',
+                            'manufacturer' => 'Asus',
+                            'model' => 'MeMO Pad HD 7',
+                            'price' => 3110
+                        ],
+                        [
+                            'id' => '0bdea651-825f-4648-9cac-4b03f8f4576e',
+                            'manufacturer' => 'Samsung',
+                            'model' => 'Galaxy Tab A9+',
+                            'price' => 24799
+                        ]
+                    ]
+                ]
+            ],
             json_decode($client->getResponse()->getContent(), true)
+        );
+        $this->assertResponseHeaderSame(
+            'Location',
+            "http://localhost/api/shopping-carts/v1/$shoppingCartId/tablets/$tabletId"
         );
 
         /* @var \App\Entity\ShoppingCart $shoppingCart */

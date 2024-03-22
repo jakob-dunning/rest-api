@@ -40,9 +40,10 @@ class PostTest extends WebTestCase
 
         $this->assertEquals(Response::HTTP_CREATED, $client->getResponse()->getStatusCode());
         $this->assertEquals(
-            ['data' => "http://localhost/api/tablets/v1/$newTabletId"],
-            json_decode($client->getResponse()->getContent(), true)
+            ['data' => $newItem],
+            json_decode($client->getResponse()->getContent(), true),
         );
+        $this->assertResponseHeaderSame('Location', "http://localhost/api/tablets/v1/$newTabletId");
 
         $tablet = $this->getContainer()->get(TabletRepository::class)->find($newTabletId);
 

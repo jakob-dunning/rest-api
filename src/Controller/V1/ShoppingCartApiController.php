@@ -44,8 +44,9 @@ class ShoppingCartApiController extends AbstractController
         $this->entityManager->flush();
 
         return new JsonResponse(
-            ['data' => sprintf('http://localhost/api/shopping-carts/v1/%s', $shoppingCart->getId()->toRfc4122())],
+            ['data' => $shoppingCart],
             Response::HTTP_CREATED,
+            ['Location' => sprintf('http://localhost/api/shopping-carts/v1/%s', $shoppingCart->getId())]
         );
     }
 
@@ -60,14 +61,15 @@ class ShoppingCartApiController extends AbstractController
         $this->entityManager->flush();
 
         return new JsonResponse(
-            [
-                'data' => sprintf(
-                    'http://localhost/api/shopping-carts/v1/%s/tablets/%s',
-                    $shoppingCart->getId()->toRfc4122(),
-                    $tablet->getId()->toRfc4122()
-                )
-            ],
+            ['data' => $shoppingCart],
             Response::HTTP_CREATED,
+            [
+                'Location' => sprintf(
+                    'http://localhost/api/shopping-carts/v1/%s/tablets/%s',
+                    $shoppingCart->getId(),
+                    $tablet->getId()
+                )
+            ]
         );
     }
 
@@ -102,6 +104,7 @@ class ShoppingCartApiController extends AbstractController
         return new JsonResponse(
             ['data' => $shoppingCart],
             Response::HTTP_OK,
+            ['Location' => sprintf('http://localhost/api/shopping-carts/v1/%s', $shoppingCart->getId())]
         );
     }
 

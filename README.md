@@ -23,7 +23,6 @@ It must be possible to:
 - Implement Etag
 - Add caching headers
 - test all routes are inaccessible without autorization
-- Send location in location header on POST and PATCH? method
 
 ## References
 - https://levelup.gitconnected.com/how-to-properly-handle-requests-with-symfony-6-3-0bfc8d7726a9

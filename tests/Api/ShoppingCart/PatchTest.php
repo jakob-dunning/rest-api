@@ -45,7 +45,7 @@ class PatchTest extends WebTestCase
         );
 
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
-        $this->assertEqualsCanonicalizing(
+        $this->assertEquals(
             [
                 'data' => [
                     'id' => $shoppingCartId,
