@@ -16,7 +16,6 @@
          beStrictAboutTestsThatDoNotTestAnything="true"
          beStrictAboutTodoAnnotatedTests="true"
          convertDeprecationsToExceptions="true"
-         beStrictAboutCoversAnnotation="true"
 >
     <php>
         <ini name="display_errors" value="1" />
