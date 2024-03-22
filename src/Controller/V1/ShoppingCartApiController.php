@@ -44,7 +44,7 @@ class ShoppingCartApiController extends AbstractController
 
         return new JsonResponse(
             ['data' => sprintf('http://localhost/api/shopping-carts/v1/%s', $shoppingCart->getId()->toRfc4122())],
-            201,
+            Response::HTTP_CREATED,
         );
     }
 
@@ -66,7 +66,7 @@ class ShoppingCartApiController extends AbstractController
                     $tablet->getId()->toRfc4122()
                 )
             ],
-            201,
+            Response::HTTP_CREATED,
         );
     }
 
@@ -76,7 +76,8 @@ class ShoppingCartApiController extends AbstractController
         $shoppingCartAsScalarArray = $shoppingCart->toScalarArray();
 
         foreach ($request->getPayload()->all() as $patch) {
-            if (in_array(ltrim($patch['path'], '/'), ['expiresAt']) === false) {
+            $propertyName = ltrim($patch['path'], '/');
+            if (in_array($propertyName, ['expiresAt']) === false) {
                 return new JsonResponse(
                     [
                         'errors' => [

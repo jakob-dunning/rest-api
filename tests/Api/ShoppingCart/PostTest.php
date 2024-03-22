@@ -31,7 +31,7 @@ class PostTest extends WebTestCase
             [
                 'id' => $shoppingCartId,
                 'expiresAt' => (new \DateTime())->modify('+1 hour')->format(DATE_ATOM),
-                'tablets' => []
+                'tablets' => [],
             ];
         $client->jsonRequest(
             Request::METHOD_POST,
