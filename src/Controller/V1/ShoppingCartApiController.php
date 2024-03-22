@@ -18,7 +18,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-#[Route('/api/shopping-carts/v1')]
+#[Route('/api/shopping-carts/v1', format: 'json')]
 class ShoppingCartApiController extends AbstractController
 {
     public function __construct(
@@ -27,7 +27,7 @@ class ShoppingCartApiController extends AbstractController
     ) {
     }
 
-    #[Route('/{shoppingCart}', methods: ['GET'])]
+    #[Route('/{shoppingCart}', methods: ['GET'], format: 'json')]
     public function show(ShoppingCart $shoppingCart): JsonResponse
     {
         return new JsonResponse(

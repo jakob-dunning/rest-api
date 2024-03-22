@@ -18,7 +18,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-#[Route('/api/tablets/v1')]
+#[Route('/api/tablets/v1', format: 'json')]
 class TabletApiController extends AbstractController
 {
     public function __construct(
@@ -28,7 +28,7 @@ class TabletApiController extends AbstractController
     ) {
     }
 
-    #[Route('', methods: ['GET'])]
+    #[Route('', methods: ['GET'], format: 'json')]
     public function list(): JsonResponse
     {
         $tablets = $this->tabletRepository->findAll();
@@ -39,7 +39,7 @@ class TabletApiController extends AbstractController
         );
     }
 
-    #[Route('/{id}', methods: ['GET'])]
+    #[Route('/{id}', methods: ['GET'], format: 'json')]
     public function show(Tablet $tablet): JsonResponse
     {
         return new JsonResponse(
