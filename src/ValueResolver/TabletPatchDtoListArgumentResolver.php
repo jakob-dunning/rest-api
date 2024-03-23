@@ -23,7 +23,8 @@ class TabletPatchDtoListArgumentResolver implements ValueResolverInterface
     /**
      * @return array<TabletPatchDtoList>
      */
-    #[\Override] public function resolve(Request $request, ArgumentMetadata $argument): iterable
+    #[\Override]
+    public function resolve(Request $request, ArgumentMetadata $argument): iterable
     {
         $argumentType = $argument->getType();
 
@@ -35,37 +36,19 @@ class TabletPatchDtoListArgumentResolver implements ValueResolverInterface
             return [];
         }
 
-        $patchDocumentDtoCollection = new TabletPatchDtoList();
+        $tabletPatchDtoList = new TabletPatchDtoList();
 
         foreach ($request->getPayload()->all() as $patch) {
-            try {
-                $patchDocumentDtoCollection->patches[] =
-                    new TabletPatchDto(
-                        $patch['op'],
-                        $patch['path'],
-                        $patch['value'] ?? null,
-                        $patch['from'] ?? null,
-                    );
-            } catch (\Throwable $t) {
-                throw new HttpException(
-                    Response::HTTP_BAD_REQUEST,
-                    '',
-                    new ValidationFailedException(
-                        $patch,
-                        new ConstraintViolationList([new ConstraintViolation(
-                            message: 'Invalid patch options',
-                            messageTemplate: null,
-                            parameters: [],
-                            root: $patch,
-                            propertyPath: null,
-                            invalidValue: $patch,
-                        )])
-                    )
+            $tabletPatchDtoList->patches[] =
+                new TabletPatchDto(
+                    $patch['op'] ?? '',
+                    $patch['path'] ?? '',
+                    $patch['value'] ?? null,
+                    $patch['from'] ?? null,
                 );
-            }
         }
 
-        $constraintViolationList = $this->validator->validate($patchDocumentDtoCollection);
+        $constraintViolationList = $this->validator->validate($tabletPatchDtoList);
 
         if ($constraintViolationList->count() > 0) {
             throw new HttpException(
@@ -75,6 +58,6 @@ class TabletPatchDtoListArgumentResolver implements ValueResolverInterface
             );
         }
 
-        return [$patchDocumentDtoCollection];
+        return [$tabletPatchDtoList];
     }
 }

@@ -23,7 +23,8 @@ class ShoppingCartPatchDtoListArgumentResolver implements ValueResolverInterface
     /**
      * @return iterable<ShoppingCartPatchDtoList>
      */
-    #[\Override] public function resolve(Request $request, ArgumentMetadata $argument): iterable
+    #[\Override]
+    public function resolve(Request $request, ArgumentMetadata $argument): iterable
     {
         $argumentType = $argument->getType();
 
@@ -35,38 +36,19 @@ class ShoppingCartPatchDtoListArgumentResolver implements ValueResolverInterface
             return [];
         }
 
-        $patchDocumentDtoCollection = new ShoppingCartPatchDtoList();
-
+        $shoppingCartPatchDtoList = new ShoppingCartPatchDtoList();
 
         foreach ($request->getPayload()->all() as $patch) {
-            try {
-                $patchDocumentDtoCollection->patches[] =
-                    new ShoppingCartPatchDto(
-                        $patch['op'],
-                        $patch['path'],
-                        $patch['value'] ?? null,
-                        $patch['from'] ?? null,
-                    );
-            } catch (\Throwable $t) {
-                throw new HttpException(
-                    Response::HTTP_BAD_REQUEST,
-                    '',
-                    new ValidationFailedException(
-                        $patch,
-                        new ConstraintViolationList([new ConstraintViolation(
-                            message: 'Invalid patch options',
-                            messageTemplate: null,
-                            parameters: [],
-                            root: $patch,
-                            propertyPath: null,
-                            invalidValue: $patch,
-                        )])
-                    )
+            $shoppingCartPatchDtoList->patches[] =
+                new ShoppingCartPatchDto(
+                    $patch['op'] ?? '',
+                    $patch['path'] ?? '',
+                    $patch['value'] ?? null,
+                    $patch['from'] ?? null,
                 );
-            }
         }
 
-        $constraintViolationList = $this->validator->validate($patchDocumentDtoCollection);
+        $constraintViolationList = $this->validator->validate($shoppingCartPatchDtoList);
 
         if ($constraintViolationList->count() > 0) {
             throw new HttpException(
@@ -76,6 +58,6 @@ class ShoppingCartPatchDtoListArgumentResolver implements ValueResolverInterface
             );
         }
 
-        return [$patchDocumentDtoCollection];
+        return [$shoppingCartPatchDtoList];
     }
 }
