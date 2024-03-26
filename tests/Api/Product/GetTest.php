@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Api\Tablet;
+namespace Tests\Api\Product;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -9,20 +9,20 @@ use Tests\Api\AuthenticatedClientTrait;
 
 /**
  * @covers \App\EventSubscriber\JsonResponseEventSubscriber
- * @covers \App\Repository\TabletRepository
+ * @covers \App\Repository\ProductRepository
  */
 class GetTest extends WebTestCase
 {
     use AuthenticatedClientTrait;
 
     /**
-     * @covers \App\Controller\V1\TabletApiController::list
-     * @covers \App\Entity\Tablet::__construct
+     * @covers \App\Controller\V1\ProductApiController::list
+     * @covers \App\Entity\Product::__construct
      */
-    public function testShowAllItems(): void
+    public function testShowAllProducts(): void
     {
         $client = $this->createAuthenticatedClient();
-        $client->jsonRequest(Request::METHOD_GET, 'http://webserver/api/tablets/v1');
+        $client->jsonRequest(Request::METHOD_GET, 'http://webserver/api/products/v1');
 
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
         $this->assertEquals(
@@ -30,18 +30,21 @@ class GetTest extends WebTestCase
                 'data' => [
                     [
                         'id' => '44682a67-fa83-4216-9e9d-5ea5dd5bf480',
+                        'type' => 'Tablet',
                         'manufacturer' => 'Lenovo',
                         'model' => 'Tab M9',
                         'price' => 19900
                     ],
                     [
                         'id' => '5c82f07f-3a47-422b-b423-efc3b782ec56',
+                        'type' => 'Tablet',
                         'manufacturer' => 'Asus',
                         'model' => 'MeMO Pad HD 7',
                         'price' => 3110
                     ],
                     [
                         'id' => '0bdea651-825f-4648-9cac-4b03f8f4576e',
+                        'type' => 'Tablet',
                         'manufacturer' => 'Samsung',
                         'model' => 'Galaxy Tab A9+',
                         'price' => 24799
@@ -53,20 +56,21 @@ class GetTest extends WebTestCase
     }
 
     /**
-     * @covers \App\Controller\V1\TabletApiController::show
-     * @covers \App\Entity\Tablet::__construct
+     * @covers \App\Controller\V1\ProductApiController::show
+     * @covers \App\Entity\Product::__construct
      */
-    public function testShowSingleItem(): void
+    public function testShowSingleProduct(): void
     {
         $client = $this->createAuthenticatedClient();
-        $tabletId = '44682a67-fa83-4216-9e9d-5ea5dd5bf480';
-        $client->jsonRequest(Request::METHOD_GET, "http://webserver/api/tablets/v1/$tabletId");
+        $productId = '44682a67-fa83-4216-9e9d-5ea5dd5bf480';
+        $client->jsonRequest(Request::METHOD_GET, "http://webserver/api/products/v1/$productId");
 
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
         $this->assertEquals(
             [
                 'data' => [
-                    'id' => $tabletId,
+                    'id' => $productId,
+                    'type' => 'Tablet',
                     'manufacturer' => 'Lenovo',
                     'model' => 'Tab M9',
                     'price' => 19900
@@ -77,34 +81,34 @@ class GetTest extends WebTestCase
     }
 
     /**
-     * @covers \App\Controller\V1\TabletApiController::show
      * @Covers \App\EventSubscriber\HttpNotFoundEventSubscriber
      */
-    public function testShowSingleItemFailsWithInvalidId(): void
+    public function testShowSingleProductFailsWithInvalidId(): void
     {
         $client = $this->createAuthenticatedClient();
-        $tabletId = 'abcde';
-        $client->jsonRequest(Request::METHOD_GET, "http://webserver/api/tablets/v1/$tabletId");
+        $productId = 'abcde';
+        $client->jsonRequest(Request::METHOD_GET, "http://webserver/api/products/v1/$productId");
+
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
     }
 
     /**
-     * @covers \App\Controller\V1\TabletApiController::show
      * @Covers \App\EventSubscriber\HttpNotFoundEventSubscriber
      */
-    public function testShowSingleItemFailsWithUnknownId(): void
+    public function testShowSingleProductFailsWithUnknownId(): void
     {
         $client = $this->createAuthenticatedClient();
-        $tabletId = '66a5c0d8-4289-43ba-941a-e235f722c438';
-        $client->jsonRequest(Request::METHOD_GET, "http://webserver/api/tablets/v1/$tabletId");
+        $productId = '66a5c0d8-4289-43ba-941a-e235f722c438';
+        $client->jsonRequest(Request::METHOD_GET, "http://webserver/api/products/v1/$productId");
+
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));

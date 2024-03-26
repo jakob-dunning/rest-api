@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use App\Dto\ShoppingCartDto;
-use App\Dto\TabletDto;
 use App\Repository\ShoppingCartRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -14,31 +13,19 @@ use Symfony\Component\Uid\UuidV4;
 #[ORM\Entity(repositoryClass: ShoppingCartRepository::class)]
 class ShoppingCart implements \JsonSerializable
 {
-    private function __construct(
+    public function __construct(
         #[ORM\Id]
         #[ORM\Column(type: UuidType::NAME)]
         private UuidV4 $id,
         #[ORM\Column(type: 'datetimetz')]
         private \DateTime $expiresAt,
-        /** @var ArrayCollection<int, Tablet> */
-        #[ORM\JoinTable(name: 'tablets_in_shoppingcarts')]
-        #[ORM\JoinColumn(name: 'shoppingcart_id', referencedColumnName: 'id', onDelete: 'cascade')]
-        #[ORM\InverseJoinColumn(name: 'tablet_id', referencedColumnName: 'id', unique: true, onDelete: 'cascade')]
-        #[ORM\ManyToMany(targetEntity: Tablet::class)]
-        private Collection $tablets = new ArrayCollection(),
+        /** @var ArrayCollection<int, Product> */
+        #[ORM\JoinTable]
+        #[ORM\JoinColumn(onDelete: 'cascade')]
+        #[ORM\InverseJoinColumn(unique: true, onDelete: 'cascade')]
+        #[ORM\ManyToMany(targetEntity: Product::class)]
+        private Collection $products = new ArrayCollection(),
     ) {
-    }
-
-    /**
-     * @param array<string> $values
-     */
-    public static function fromArray(array $values): self
-    {
-        return new self(
-            UuidV4::fromString($values['id']),
-            new \DateTime($values['expiresAt']),
-            new ArrayCollection()
-        );
     }
 
     public static function fromDto(ShoppingCartDto $shoppingCartDto): self
@@ -56,11 +43,11 @@ class ShoppingCart implements \JsonSerializable
     }
 
     /**
-     * @return ArrayCollection<int, Tablet>
+     * @return ArrayCollection<int, Product>
      */
-    public function getTablets(): Collection
+    public function getProducts(): Collection
     {
-        return $this->tablets;
+        return $this->products;
     }
 
     public function getExpiresAt(): \DateTime
@@ -68,16 +55,14 @@ class ShoppingCart implements \JsonSerializable
         return $this->expiresAt;
     }
 
-    public function addTablet(Tablet $tablet): void
+    public function addProduct(Product $product): void
     {
-        //TODO: Handle adding same tablet twice
-        $this->tablets->add($tablet);
+        $this->products->add($product);
     }
 
-    public function removeTablet(Tablet $tablet): void
+    public function removeProduct(Product $product): void
     {
-        //TODO: Handle removing tablet not in collection
-        $this->tablets->removeElement($tablet);
+        $this->products->removeElement($product);
     }
 
     /**
@@ -88,7 +73,7 @@ class ShoppingCart implements \JsonSerializable
         return [
             'id' => $this->id->toRfc4122(),
             'expiresAt' => $this->expiresAt->format(DATE_ATOM),
-            'tablets' => $this->tablets->toArray(),
+            'products' => $this->products->toArray(),
         ];
     }
 

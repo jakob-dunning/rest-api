@@ -16,9 +16,9 @@ class ShoppingCartPatchDto
         #[Assert\Choice(choices: ['/expiresAt'])]
         public string $path,
         #[Assert\Type('string')]
-        public ?string $value,
+        public string|null $value,
         #[Assert\Type('string')]
-        public ?string $from
+        public string|null $from
     ) {
     }
 }

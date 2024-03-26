@@ -2,8 +2,8 @@
 
 namespace Tests\Api\ShoppingCart;
 
+use App\Entity\Product;
 use Tests\Api\AuthenticatedClientTrait;
-use App\Entity\Tablet;
 use App\Repository\ShoppingCartRepository;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,7 +28,6 @@ class DeleteTest extends WebTestCase
         $this->assertEquals('', $client->getResponse()->getContent());
 
         $shoppingCart = $this->getContainer()->get(ShoppingCartRepository::class)->find($shoppingCartId);
-
         $this->assertNull($shoppingCart);
     }
 
@@ -38,8 +37,9 @@ class DeleteTest extends WebTestCase
         $client = $this->createAuthenticatedClient();
         $client->jsonRequest(Request::METHOD_DELETE, 'http://webserver/api/shopping-carts/v1/');
 
-        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
+
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
@@ -51,8 +51,9 @@ class DeleteTest extends WebTestCase
         $client = $this->createAuthenticatedClient();
         $client->jsonRequest(Request::METHOD_DELETE, 'http://webserver/api/shopping-carts/v1/abcde');
 
-        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
+
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
@@ -67,84 +68,88 @@ class DeleteTest extends WebTestCase
             'http://webserver/api/shopping-carts/v1/49422ab6-a3e7-4440-9066-6ce601251494'
         );
 
-        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
+
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
     }
 
     /**
-     * @covers \App\Controller\V1\ShoppingCartApiController::removeTablet
+     * @covers \App\Controller\V1\ShoppingCartApiController::removeItem
      */
-    public function testRemoveTabletFromShoppingCart(): void
+    public function testRemoveProductFromShoppingCart(): void
     {
         $client = $this->createAuthenticatedClient();
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
-        $tabletId = '0bdea651-825f-4648-9cac-4b03f8f4576e';
+        $productId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
         $client->jsonRequest(
             Request::METHOD_DELETE,
-            "http://webserver/api/shopping-carts/v1/$shoppingCartId/tablets/$tabletId"
+            "http://webserver/api/shopping-carts/v1/$shoppingCartId/products/$productId"
         );
 
         $this->assertEquals(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
 
         /* @var \App\Entity\ShoppingCart $shoppingCart */
         $shoppingCart = $this->getContainer()->get(ShoppingCartRepository::class)->find($shoppingCartId);
-        $productsWithTabletId = array_filter(
-            $shoppingCart->getTablets()->toArray(),
-            function (Tablet $tablet) use ($tabletId) {
-                return $tablet->getId()->toRfc4122() === $tabletId;
+        $productsWithProductId = array_filter(
+            $shoppingCart->getProducts()->toArray(),
+            function (Product $product) use ($productId) {
+                return $product->getId()->toRfc4122() === $productId;
             }
         );
-        $this->assertCount(0, $productsWithTabletId);
+        $this->assertCount(0, $productsWithProductId);
     }
 
     /** @covers \App\EventSubscriber\HttpNotFoundEventSubscriber */
-    public function testRemoveTabletFromShoppingCartFailsWithMissingTabletId(): void
+    public function testRemoveProductFromShoppingCartFailsWithMissingId(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->jsonRequest(
             Request::METHOD_DELETE,
-            'http://webserver/api/shopping-carts/v1/5a2dc28e-1282-4e52-b90c-782c908a4e04/tablets/'
+            'http://webserver/api/shopping-carts/v1/5a2dc28e-1282-4e52-b90c-782c908a4e04/products/'
         );
 
-        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
+
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
     }
 
     /** @covers \App\EventSubscriber\HttpNotFoundEventSubscriber */
-    public function testRemoveTabletFromShoppingCartFailsWithInvalidTabletId(): void
+    public function testRemoveProductFromShoppingCartFailsWithInvalidId(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->jsonRequest(
             Request::METHOD_DELETE,
-            "http://webserver/api/shopping-carts/v1/5a2dc28e-1282-4e52-b90c-782c908a4e04/tablets/abcde"
+            "http://webserver/api/shopping-carts/v1/5a2dc28e-1282-4e52-b90c-782c908a4e04/products/abcde"
         );
 
-        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
+
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
     }
 
     /** @covers \App\EventSubscriber\HttpNotFoundEventSubscriber */
-    public function testRemoveTabletFromShoppingCartFailsWithUnknownTabletId(): void
+    public function testRemoveProductFromShoppingCartFailsWithUnknownId(): void
     {
         $client = $this->createAuthenticatedClient();
         $shoppingCartId = '5a2dc28e-1282-4e52-b90c-782c908a4e04';
-        $unknownTabletId = '6f36f4c5-5f99-4b97-a908-93a47662e435';
+        $unknownProductId = '6f36f4c5-5f99-4b97-a908-93a47662e435';
         $client->jsonRequest(
             Request::METHOD_DELETE,
-            "http://webserver/api/shopping-carts/v1/$shoppingCartId/tablets/$unknownTabletId"
+            "http://webserver/api/shopping-carts/v1/$shoppingCartId/products/$unknownProductId"
         );
 
-        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
+
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));

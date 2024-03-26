@@ -5,7 +5,7 @@ namespace App\Controller\V1;
 use App\Dto\ShoppingCartPatchDtoList;
 use App\Dto\ShoppingCartDto;
 use App\Entity\ShoppingCart;
-use App\Entity\Tablet;
+use App\Entity\Product;
 use App\ValueResolver\ShoppingCartPatchDtoListArgumentResolver;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Uid\UuidV4;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -50,13 +51,14 @@ class ShoppingCartApiController extends AbstractController
         );
     }
 
-    #[Route('/{shoppingCart}/tablets', methods: ['POST'], format: 'json')]
-    public function addTablet(
+    #[Route('/{shoppingCart}/products', methods: ['POST'], format: 'json')]
+    public function addItem(
         ShoppingCart $shoppingCart,
         #[MapEntity(expr: 'repository.find(request.getPayload().get("id") ?? "")')]
-        Tablet $tablet
+        Product $product,
     ): JsonResponse {
-        $shoppingCart->addTablet($tablet);
+        $shoppingCart->addProduct($product);
+
         $this->entityManager->persist($shoppingCart);
         $this->entityManager->flush();
 
@@ -65,9 +67,9 @@ class ShoppingCartApiController extends AbstractController
             Response::HTTP_CREATED,
             [
                 'Location' => sprintf(
-                    'http://localhost/api/shopping-carts/v1/%s/tablets/%s',
+                    'http://localhost/api/shopping-carts/v1/%s/products/%s',
                     $shoppingCart->getId(),
-                    $tablet->getId()
+                    $product->getId()
                 )
             ]
         );
@@ -85,7 +87,10 @@ class ShoppingCartApiController extends AbstractController
             $shoppingCartAsScalarArray[ltrim($patch->path, '/')] = $patch->value;
         }
 
-        $shoppingCartDto = ShoppingCartDto::fromScalarArray($shoppingCartAsScalarArray);
+        $shoppingCartDto = new ShoppingCartDto(
+            UuidV4::fromString($shoppingCartAsScalarArray['id']),
+            new \DateTime($shoppingCartAsScalarArray['expiresAt']),
+        );
         $constraintViolationList = $this->validator->validate($shoppingCartDto);
 
         if ($constraintViolationList->count() !== 0) {
@@ -120,10 +125,10 @@ class ShoppingCartApiController extends AbstractController
         );
     }
 
-    #[Route('/{shoppingCart}/tablets/{tablet}', methods: ['DELETE'], format: 'json')]
-    public function removeTablet(ShoppingCart $shoppingCart, Tablet $tablet): JsonResponse
+    #[Route('/{shoppingCart}/products/{product}', methods: ['DELETE'], format: 'json')]
+    public function removeItem(ShoppingCart $shoppingCart, Product $product): JsonResponse
     {
-        $shoppingCart->removeTablet($tablet);
+        $shoppingCart->removeProduct($product);
         $this->entityManager->persist($shoppingCart);
         $this->entityManager->flush();
 

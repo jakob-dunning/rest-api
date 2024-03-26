@@ -2,15 +2,14 @@
 
 namespace App\Controller\V1;
 
-use App\Dto\TabletDto;
-use App\Dto\TabletPatchDtoList;
-use App\Entity\Tablet;
-use App\Repository\TabletRepository;
-use App\ValueResolver\TabletPatchDtoListArgumentResolver;
+use App\Dto\ProductDto;
+use App\Dto\ProductPatchDtoList;
+use App\Entity\Product;
+use App\Repository\ProductRepository;
+use App\ValueResolver\ProductPatchDtoListArgumentResolver;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -18,11 +17,11 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-#[Route('/api/tablets/v1', format: 'json')]
-class TabletApiController extends AbstractController
+#[Route('/api/products/v1', format: 'json')]
+class ProductApiController extends AbstractController
 {
     public function __construct(
-        private TabletRepository $tabletRepository,
+        private ProductRepository $productRepository,
         private EntityManagerInterface $entityManager,
         private ValidatorInterface $validator
     ) {
@@ -31,51 +30,58 @@ class TabletApiController extends AbstractController
     #[Route('', methods: ['GET'], format: 'json')]
     public function list(): JsonResponse
     {
-        $tablets = $this->tabletRepository->findAll();
+        $products = $this->productRepository->findAll();
 
         return new JsonResponse(
-            ['data' => $tablets],
+            ['data' => $products],
             Response::HTTP_OK,
         );
     }
 
     #[Route('/{id}', methods: ['GET'], format: 'json')]
-    public function show(Tablet $tablet): JsonResponse
+    public function show(Product $product): JsonResponse
     {
         return new JsonResponse(
-            ['data' => $tablet],
+            ['data' => $product],
             Response::HTTP_OK,
         );
     }
 
     #[Route('', methods: ['POST'], format: 'json')]
-    public function create(#[MapRequestPayload] TabletDto $tabletDto): JsonResponse
-    {
-        $tablet = Tablet::fromDto($tabletDto);
-        $this->entityManager->persist($tablet);
+    public function create(
+        #[MapRequestPayload] ProductDto $productDto
+    ): JsonResponse {
+        $product = Product::fromDto($productDto);
+        $this->entityManager->persist($product);
         $this->entityManager->flush();
 
         return new JsonResponse(
-            ['data' => $tablet],
+            ['data' => $product],
             Response::HTTP_CREATED,
-            ['Location' => sprintf('http://localhost/api/tablets/v1/%s', $tablet->getId())]
+            ['Location' => sprintf('http://localhost/api/products/v1/%s', $product->getId())]
         );
     }
 
     #[Route('/{id}', methods: ['PATCH'], format: 'json')]
     public function update(
-        Tablet $tablet,
-        #[MapRequestPayload(acceptFormat: 'json', resolver: TabletPatchDtoListArgumentResolver::class)]
-        TabletPatchDtoList $tabletPatchDtoList
+        Product $product,
+        #[MapRequestPayload(acceptFormat: 'json', resolver: ProductPatchDtoListArgumentResolver::class)]
+        ProductPatchDtoList $productPatchDtoList
     ): JsonResponse {
-        $tabletAsScalarArray = $tablet->toScalarArray();
+        $productAsArray = $product->toArray();
 
-        foreach ($tabletPatchDtoList->patches as $patch) {
-            $tabletAsScalarArray[ltrim($patch->path, '/')] = $patch->value;
+        foreach ($productPatchDtoList->patches as $patch) {
+            $productAsArray[ltrim($patch->path, '/')] = $patch->value;
         }
 
-        $tabletDto = TabletDto::fromScalarArray($tabletAsScalarArray);
-        $constraintViolationList = $this->validator->validate($tabletDto);
+        $productDto = new ProductDto(
+            $productAsArray['id'],
+            $productAsArray['type'],
+            $productAsArray['manufacturer'],
+            $productAsArray['model'],
+            $productAsArray['price'],
+        );
+        $constraintViolationList = $this->validator->validate($productDto);
 
         if ($constraintViolationList->count() !== 0) {
             throw new HttpException(
@@ -85,22 +91,22 @@ class TabletApiController extends AbstractController
             );
         }
 
-        $tablet->mergeWithDto($tabletDto);
+        $product->mergeWithDto($productDto);
 
-        $this->entityManager->persist($tablet);
+        $this->entityManager->persist($product);
         $this->entityManager->flush();
 
         return new JsonResponse(
-            ['data' => $tablet],
+            ['data' => $product],
             Response::HTTP_OK,
-            ['Location' => sprintf('http://localhost/api/tablets/v1/%s', $tablet->getId())]
+            ['Location' => sprintf('http://localhost/api/products/v1/%s', $product->getId())]
         );
     }
 
     #[Route('/{id}', methods: ['DELETE'], format: 'json')]
-    public function delete(Tablet $tablet): JsonResponse
+    public function delete(Product $product): JsonResponse
     {
-        $this->entityManager->remove($tablet);
+        $this->entityManager->remove($product);
         $this->entityManager->flush();
 
         return new JsonResponse(

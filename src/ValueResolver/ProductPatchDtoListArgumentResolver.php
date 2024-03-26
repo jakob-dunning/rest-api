@@ -2,26 +2,25 @@
 
 namespace App\ValueResolver;
 
-use App\Dto\TabletPatchDto;
-use App\Dto\TabletPatchDtoList;
+use App\Dto\ProductPatchDto;
+use App\Dto\ProductPatchDtoList;
+use App\Library\Assert;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\Validator\ConstraintViolation;
-use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class TabletPatchDtoListArgumentResolver implements ValueResolverInterface
+class ProductPatchDtoListArgumentResolver implements ValueResolverInterface
 {
     public function __construct(private ValidatorInterface $validator)
     {
     }
 
     /**
-     * @return array<TabletPatchDtoList>
+     * @return array<ProductPatchDtoList>
      */
     #[\Override]
     public function resolve(Request $request, ArgumentMetadata $argument): iterable
@@ -32,23 +31,23 @@ class TabletPatchDtoListArgumentResolver implements ValueResolverInterface
             return [];
         }
 
-        if (is_a($argumentType, TabletPatchDtoList::class, true) === false) {
+        if (is_a($argumentType, ProductPatchDtoList::class, true) === false) {
             return [];
         }
 
-        $tabletPatchDtoList = new TabletPatchDtoList();
+        $productPatchDtoList = new ProductPatchDtoList();
 
         foreach ($request->getPayload()->all() as $patch) {
-            $tabletPatchDtoList->patches[] =
-                new TabletPatchDto(
-                    $patch['op'] ?? '',
-                    $patch['path'] ?? '',
-                    $patch['value'] ?? null,
-                    $patch['from'] ?? null,
+            $productPatchDtoList->patches[] =
+                new ProductPatchDto(
+                    Assert::arrayHasPropertyOfTypeString($patch, 'op') ? $patch['op'] : '',
+                    Assert::arrayHasPropertyOfTypeString($patch, 'path') ? $patch['path'] : '',
+                    Assert::arrayHasPropertyOfTypeStringIntOrNull($patch, 'value') ? $patch['value'] : null,
+                    Assert::arrayHasPropertyOfTypeStringOrNull($patch, 'from') ? $patch['from'] : null,
                 );
         }
 
-        $constraintViolationList = $this->validator->validate($tabletPatchDtoList);
+        $constraintViolationList = $this->validator->validate($productPatchDtoList);
 
         if ($constraintViolationList->count() > 0) {
             throw new HttpException(
@@ -58,6 +57,6 @@ class TabletPatchDtoListArgumentResolver implements ValueResolverInterface
             );
         }
 
-        return [$tabletPatchDtoList];
+        return [$productPatchDtoList];
     }
 }

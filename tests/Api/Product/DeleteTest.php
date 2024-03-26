@@ -1,72 +1,80 @@
 <?php
 
-namespace Tests\Api\Tablet;
+namespace Tests\Api\Product;
 
-use App\Repository\TabletRepository;
+use App\Repository\ProductRepository;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Api\AuthenticatedClientTrait;
 
 /**
- * @covers \App\Controller\V1\TabletApiController::delete
+ * @covers \App\Controller\V1\ProductApiController::delete
  * @covers \App\EventSubscriber\JsonResponseEventSubscriber
- * @covers \App\Repository\TabletRepository
+ * @covers \App\Repository\ProductRepository
  */
 class DeleteTest extends WebTestCase
 {
     use AuthenticatedClientTrait;
 
-    public function testDeleteItem(): void
+    public function testDeleteProduct(): void
     {
         $client = $this->createAuthenticatedClient();
-        $tabletId = '44682a67-fa83-4216-9e9d-5ea5dd5bf480';
-        $client->jsonRequest(Request::METHOD_DELETE, "http://webserver/api/tablets/v1/$tabletId");
+        $productId = '0bdea651-825f-4648-9cac-4b03f8f4576e';
+        $client->jsonRequest(Request::METHOD_DELETE, "http://webserver/api/products/v1/$productId");
 
         $this->assertEquals(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
 
-        $tablet = $this->getContainer()->get(TabletRepository::class)->find($tabletId);
-
-        $this->assertNull($tablet);
+        $product = $this->getContainer()->get(ProductRepository::class)->find($productId);
+        $this->assertNull($product);
     }
 
-    /** @covers \App\EventSubscriber\HttpNotFoundEventSubscriber */
-    public function testDeleteItemFailsWithMissingId(): void
+    /**
+     * @covers \App\EventSubscriber\HttpNotFoundEventSubscriber
+     */
+    public function testDeleteProductFailsWithMissingId(): void
     {
         $client = $this->createAuthenticatedClient();
-        $client->request(Request::METHOD_DELETE, 'http://webserver/api/tablets/v1/');
+        $client->request(Request::METHOD_DELETE, 'http://webserver/api/products/v1/');
+
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
     }
 
-    /** @covers \App\EventSubscriber\HttpNotFoundEventSubscriber */
-    public function testDeleteItemFailsWithInvalidId(): void
+    /**
+     * @covers \App\EventSubscriber\HttpNotFoundEventSubscriber
+     */
+    public function testDeleteProductFailsWithInvalidId(): void
     {
         $client = $this->createAuthenticatedClient();
-        $client->jsonRequest(Request::METHOD_DELETE, 'http://webserver/api/tablets/v1/abcdefg');
+        $client->jsonRequest(Request::METHOD_DELETE, 'http://webserver/api/products/v1/abcdefg');
+
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
     }
 
-    /** @covers \App\EventSubscriber\HttpNotFoundEventSubscriber */
-    public function testDeleteItemFailsWithUnknownId(): void
+    /**
+     * @covers \App\EventSubscriber\HttpNotFoundEventSubscriber
+     */
+    public function testDeleteProductFailsWithUnknownId(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->jsonRequest(
             Request::METHOD_DELETE,
-            'http://webserver/api/tablets/v1/649b05de-00b4-4fb7-8d64-113c1806c9a7'
+            'http://webserver/api/products/v1/649b05de-00b4-4fb7-8d64-113c1806c9a7'
         );
 
-        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
+
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));

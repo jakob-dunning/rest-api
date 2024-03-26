@@ -2,19 +2,21 @@
 
 namespace App\Entity;
 
-use App\Dto\TabletDto;
-use App\Repository\TabletRepository;
+use App\Dto\ProductDto;
+use App\Repository\ProductRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\UuidV4;
 
-#[ORM\Entity(repositoryClass: TabletRepository::class)]
-class Tablet implements \JsonSerializable
+#[ORM\Entity(repositoryClass: ProductRepository::class)]
+class Product implements \JsonSerializable
 {
-    private function __construct(
+    public function __construct(
         #[ORM\Id]
         #[ORM\Column(type: UuidType::NAME)]
         private UuidV4 $id,
+        #[ORM\Column(length: 255)]
+        private string $type,
         #[ORM\Column(length: 255)]
         private string $manufacturer,
         #[ORM\Column(length: 255)]
@@ -24,26 +26,14 @@ class Tablet implements \JsonSerializable
     ) {
     }
 
-    public static function fromDto(TabletDto $tabletDto): self
+    public static function fromDto(ProductDto $productDto): self
     {
         return new self(
-            UuidV4::fromString($tabletDto->id),
-            $tabletDto->manufacturer,
-            $tabletDto->model,
-            $tabletDto->price
-        );
-    }
-
-    /**
-     * @param array<UuidV4|string|int> $values
-     */
-    public static function fromArray(array $values): self
-    {
-        return new self(
-            UuidV4::fromString($values['id']),
-            $values['manufacturer'],
-            $values['model'],
-            $values['price']
+            $productDto->id,
+            $productDto->type,
+            $productDto->manufacturer,
+            $productDto->model,
+            $productDto->price
         );
     }
 
@@ -89,12 +79,27 @@ class Tablet implements \JsonSerializable
     }
 
     /**
+     * @return array<UuidV4|string|int>
+     */
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'type' => $this->type,
+            'manufacturer' => $this->manufacturer,
+            'model' => $this->model,
+            'price' => $this->price,
+        ];
+    }
+
+    /**
      * @return array<string|int>
      */
     public function toScalarArray(): array
     {
         return [
             'id' => $this->id->toRfc4122(),
+            'type' => $this->type,
             'manufacturer' => $this->manufacturer,
             'model' => $this->model,
             'price' => $this->price,
@@ -109,11 +114,12 @@ class Tablet implements \JsonSerializable
         return $this->toScalarArray();
     }
 
-    public function mergeWithDto(TabletDto $tabletDto): void
+    public function mergeWithDto(ProductDto $productDto): void
     {
-        $this->id = $tabletDto->id;
-        $this->manufacturer = $tabletDto->manufacturer;
-        $this->model = $tabletDto->model;
-        $this->price = $tabletDto->price;
+        $this->id = $productDto->id;
+        $this->type = $productDto->type;
+        $this->manufacturer = $productDto->manufacturer;
+        $this->model = $productDto->model;
+        $this->price = $productDto->price;
     }
 }

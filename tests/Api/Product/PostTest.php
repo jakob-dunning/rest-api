@@ -1,8 +1,8 @@
 <?php
 
-namespace Api\Tablet;
+namespace Api\Product;
 
-use App\Repository\TabletRepository;
+use App\Repository\ProductRepository;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -10,66 +10,66 @@ use Symfony\Component\Uid\Uuid;
 use Tests\Api\AuthenticatedClientTrait;
 
 /**
- * @covers \App\Controller\V1\TabletApiController::create
+ * @covers \App\Controller\V1\ProductApiController::create
  * @covers \App\EventSubscriber\JsonResponseEventSubscriber
- * @covers \App\Repository\TabletRepository
+ * @covers \App\Repository\ProductRepository
  */
 class PostTest extends WebTestCase
 {
     use AuthenticatedClientTrait;
 
     /**
-     * @covers \App\Entity\Tablet
-     * @covers \App\Dto\TabletDto
+     * @covers \App\Entity\Product
+     * @covers \App\Dto\ProductDto
      */
-    public function testCreateNewItem(): void
+    public function testCreateNewProduct(): void
     {
         $client = $this->createAuthenticatedClient();
-        $newTabletId = Uuid::v4();
-        $newItem = [
-            'id' => $newTabletId->toRfc4122(),
+        $newProductId = Uuid::v4();
+        $newProduct = [
+            'id' => $newProductId->toRfc4122(),
+            'type' => 'Tablet',
             'manufacturer' => 'Xiaomi',
             'model' => 'Redmi Pad SE',
             'price' => 19799
         ];
         $client->jsonRequest(
             Request::METHOD_POST,
-            "http://webserver/api/tablets/v1",
-            $newItem
+            "http://webserver/api/products/v1",
+            $newProduct
         );
 
         $this->assertEquals(Response::HTTP_CREATED, $client->getResponse()->getStatusCode());
-        $this->assertEquals(
-            ['data' => $newItem],
-            json_decode($client->getResponse()->getContent(), true),
-        );
-        $this->assertResponseHeaderSame('Location', "http://localhost/api/tablets/v1/$newTabletId");
+        $this->assertResponseHeaderSame('Location', "http://localhost/api/products/v1/$newProductId");
 
-        $tablet = $this->getContainer()->get(TabletRepository::class)->find($newTabletId);
+        $this->assertEquals(['data' => $newProduct], json_decode($client->getResponse()->getContent(), true),);
 
-        $this->assertEquals($newItem, $tablet->toScalarArray());
+        $product = $this->getContainer()->get(ProductRepository::class)->find($newProductId);
+        $this->assertEquals($newProduct, $product->toScalarArray());
     }
 
     /**
      * @covers \App\EventSubscriber\PayloadFailedValidationEventSubscriber
-     * @covers \App\Dto\TabletDto
+     * @covers \App\Dto\ProductDto
      */
-    public function testCreateNewItemFailsWithInvalidId(): void
+    public function testCreateNewProductFailsWithInvalidId(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->jsonRequest(
             Request::METHOD_POST,
-            "http://webserver/api/tablets/v1",
+            "http://webserver/api/products/v1",
             [
                 'id' => 'abcde',
+                'type' => 'tablet',
                 'manufacturer' => 'Xiaomi',
                 'model' => 'Redmi Pad SE',
                 'price' => 19799
             ]
         );
 
-        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $client->getResponse()->getStatusCode());
+
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
@@ -78,34 +78,35 @@ class PostTest extends WebTestCase
     /**
      * @dataProvider stringPropertyNameProvider
      * @covers       \App\EventSubscriber\PayloadFailedValidationEventSubscriber
-     * @covers       \App\Dto\TabletDto
+     * @covers       \App\Dto\ProductDto
      */
-    public function testCreateNewItemFailsWithEmptyStringProperty(string $propertyName): void
+    public function testCreateNewProductFailsWithEmptyStringProperty(string $propertyName): void
     {
         $client = $this->createAuthenticatedClient();
-        $newTabletId = Uuid::v4();
-        $newItem = [
-            'id' => $newTabletId,
+        $newProductId = Uuid::v4();
+        $newProduct = [
+            'id' => $newProductId,
+            'type' => 'tablet',
             'manufacturer' => 'Xiaomi',
             'model' => 'Redmi Pad SE',
             'price' => 19799
         ];
-        $newItem[$propertyName] = '';
+        $newProduct[$propertyName] = '';
         $client->jsonRequest(
             Request::METHOD_POST,
-            "http://webserver/api/tablets/v1",
-            $newItem
+            "http://webserver/api/products/v1",
+            $newProduct
         );
 
-        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $client->getResponse()->getStatusCode());
+
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
 
-        $tablet = $this->getContainer()->get(TabletRepository::class)->find($newTabletId);
-
-        $this->assertNull($tablet);
+        $product = $this->getContainer()->get(ProductRepository::class)->find($newProductId);
+        $this->assertNull($product);
     }
 
     /**
@@ -116,119 +117,96 @@ class PostTest extends WebTestCase
         return [
             ['manufacturer'],
             ['model'],
+            ['type'],
         ];
     }
 
     /**
      * @covers \App\EventSubscriber\PayloadFailedValidationEventSubscriber
-     * @covers \App\Dto\TabletDto
+     * @covers \App\Dto\ProductDto
      */
-    public function testCreateNewItemFailsWithNegativePrice(): void
+    public function testCreateNewProductFailsWithNegativePrice(): void
     {
         $client = $this->createAuthenticatedClient();
-        $newTabletId = Uuid::v4();
-        $client->jsonRequest(Request::METHOD_POST, "http://webserver/api/tablets/v1", [
-            'id' => $newTabletId,
+        $newProductId = Uuid::v4();
+        $client->jsonRequest(Request::METHOD_POST, "http://webserver/api/products/v1", [
+            'id' => $newProductId,
+            'type' => 'tablet',
             'manufacturer' => 'Xiaomi',
             'model' => 'Redmi Pad SE',
             'price' => -7000
         ]);
 
-        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $client->getResponse()->getStatusCode());
+
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
 
-        $tablet = $this->getContainer()->get(TabletRepository::class)->find($newTabletId);
-
-        $this->assertNull($tablet);
+        $product = $this->getContainer()->get(ProductRepository::class)->find($newProductId);
+        $this->assertNull($product);
     }
 
     /**
      * @covers \App\EventSubscriber\PayloadFailedValidationEventSubscriber
-     * @covers \App\Dto\TabletDto
+     * @covers \App\Dto\ProductDto
      */
-    public function testCreateNewItemFailsWithRidiculouslyHighPrice(): void
+    public function testCreateNewProductFailsWithRidiculouslyHighPrice(): void
     {
         $client = $this->createAuthenticatedClient();
-        $newTabletId = Uuid::v4();
-        $client->jsonRequest(Request::METHOD_POST, "http://webserver/api/tablets/v1", [
-            'id' => $newTabletId,
+        $newProductId = Uuid::v4();
+        $client->jsonRequest(Request::METHOD_POST, "http://webserver/api/products/v1", [
+            'id' => $newProductId,
+            'type' => 'tablet',
             'manufacturer' => 'Xiaomi',
             'model' => 'Redmi Pad SE',
             'price' => 100000000
         ]);
 
-        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $client->getResponse()->getStatusCode());
+
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
 
-        $tablet = $this->getContainer()->get(TabletRepository::class)->find($newTabletId);
-
-        $this->assertNull($tablet);
+        $product = $this->getContainer()->get(ProductRepository::class)->find($newProductId);
+        $this->assertNull($product);
     }
 
     /**
      * @dataProvider propertyNameProvider
      * @covers       \App\EventSubscriber\PayloadFailedValidationEventSubscriber
-     * @covers       \App\Dto\TabletDto
+     * @covers       \App\Dto\ProductDto
      */
-    public function testCreateNewItemFailsWithMissingProperty(string $propertyName): void
+    public function testCreateNewProductFailsWithMissingProperty(string $propertyName): void
     {
         $client = $this->createAuthenticatedClient();
-        $newTabletId = Uuid::v4();
-        $newItem = [
-            'id' => $newTabletId,
+        $newProductId = Uuid::v4();
+        $newProduct = [
+            'id' => $newProductId,
+            'type' => 'tablet',
             'manufacturer' => 'Xiaomi',
             'model' => 'Redmi Pad SE',
             'price' => 17999
         ];
-        unset($newItem[$propertyName]);
+        unset($newProduct[$propertyName]);
         $client->jsonRequest(
             Request::METHOD_POST,
-            "http://webserver/api/tablets/v1",
-            $newItem
+            "http://webserver/api/products/v1",
+            $newProduct
         );
 
-        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $client->getResponse()->getStatusCode());
-        $this->assertTrue(key_exists('errors', $responseContentAsArray));
-        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
-        $this->assertFalse(key_exists('data', $responseContentAsArray));
-
-        $tablet = $this->getContainer()->get(TabletRepository::class)->find($newTabletId);
-
-        $this->assertNull($tablet);
-    }
-
-    /**
-     * @covers \App\EventSubscriber\PayloadFailedDeserializationEventSubscriber
-     */
-    public function testCreateNewItemFailsWithMalformedJson(): void
-    {
-        $client = $this->createAuthenticatedClient();
-        $newTabletId = Uuid::v4();
-        $client->request(
-            Request::METHOD_POST,
-            "http://webserver/api/tablets/v1",
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            "{'id':'$newTabletId','manufacturer':'xiaomi','model':'Redmi Note 4','price':9999}"
-        );
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
 
-        $tablet = $this->getContainer()->get(TabletRepository::class)->find($newTabletId);
-
-        $this->assertNull($tablet);
+        $product = $this->getContainer()->get(ProductRepository::class)->find($newProductId);
+        $this->assertNull($product);
     }
 
     /**
@@ -240,6 +218,34 @@ class PostTest extends WebTestCase
             ['manufacturer'],
             ['model'],
             ['price'],
+            ['type'],
         ];
+    }
+
+    /**
+     * @covers \App\EventSubscriber\PayloadFailedDeserializationEventSubscriber
+     */
+    public function testCreateNewProductFailsWithMalformedJson(): void
+    {
+        $client = $this->createAuthenticatedClient();
+        $newProductId = Uuid::v4();
+        $client->request(
+            Request::METHOD_POST,
+            "http://webserver/api/products/v1",
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            "{'id':'$newProductId','type':'tablet','manufacturer':'xiaomi','model':'Redmi Note 4','price':9999}"
+        );
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
+
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
+        $this->assertTrue(key_exists('errors', $responseContentAsArray));
+        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
+        $this->assertFalse(key_exists('data', $responseContentAsArray));
+
+        $product = $this->getContainer()->get(ProductRepository::class)->find($newProductId);
+        $this->assertNull($product);
     }
 }

@@ -4,13 +4,12 @@ namespace App\ValueResolver;
 
 use App\Dto\ShoppingCartPatchDto;
 use App\Dto\ShoppingCartPatchDtoList;
+use App\Library\Assert;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\Validator\ConstraintViolation;
-use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -41,10 +40,10 @@ class ShoppingCartPatchDtoListArgumentResolver implements ValueResolverInterface
         foreach ($request->getPayload()->all() as $patch) {
             $shoppingCartPatchDtoList->patches[] =
                 new ShoppingCartPatchDto(
-                    $patch['op'] ?? '',
-                    $patch['path'] ?? '',
-                    $patch['value'] ?? null,
-                    $patch['from'] ?? null,
+                    Assert::arrayHasPropertyOfTypeString($patch, 'op') ? $patch['op'] : '',
+                    Assert::arrayHasPropertyOfTypeString($patch, 'path') ? $patch['path'] : '',
+                    Assert::arrayHasPropertyOfTypeStringIntOrNull($patch, 'value') ? $patch['value'] : null,
+                    Assert::arrayHasPropertyOfTypeStringOrNull($patch, 'from') ? $patch['from'] : null,
                 );
         }
 

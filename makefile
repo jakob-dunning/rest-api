@@ -25,3 +25,6 @@ phpcs:
 
 phpcbf:
 	docker-compose exec php vendor/bin/phpcbf
+
+load-fixtures:
+	docker-compose exec php bin/console doctrine:fixtures:load -n

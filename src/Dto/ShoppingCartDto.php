@@ -18,15 +18,4 @@ readonly class ShoppingCartDto
         public \DateTime $expiresAt
     ) {
     }
-
-    /**
-     * @param array<string> $values
-     */
-    public static function fromScalarArray(array $values): self
-    {
-        return new self(
-            UuidV4::fromString($values['id']),
-            new \DateTime($values['expiresAt']),
-        );
-    }
 }
