@@ -71,9 +71,6 @@ class PatchTest extends WebTestCase
         $this->assertEquals($expiresAt, $shoppingCart->getExpiresAt()->format(DATE_ATOM));
     }
 
-    /**
-     * @covers \App\EventSubscriber\JsonFailedDecodingEventSubscriber
-     */
     public function testUpdateFailsWithMalformedJson(): void
     {
         $client = $this->createAuthenticatedClient();

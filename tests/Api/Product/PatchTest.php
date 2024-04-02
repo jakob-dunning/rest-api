@@ -231,9 +231,6 @@ class PatchTest extends WebTestCase
         $this->assertEquals(3110, $product->getPrice());
     }
 
-    /**
-     * @covers \App\EventSubscriber\JsonFailedDecodingEventSubscriber
-     */
     public function testUpdateFailsWithMalformedJson(): void
     {
         $client = $this->createAuthenticatedClient();
