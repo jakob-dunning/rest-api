@@ -65,8 +65,9 @@ class GetTest extends WebTestCase
             'http://webserver/api/shopping-carts/v1/'
         );
 
-        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
+
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
@@ -81,8 +82,9 @@ class GetTest extends WebTestCase
             'http://webserver/api/shopping-carts/v1/abcde'
         );
 
-        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
+
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));
@@ -98,8 +100,9 @@ class GetTest extends WebTestCase
             "http://webserver/api/shopping-carts/v1/$shoppingCartId"
         );
 
-        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
+
+        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
         $this->assertTrue(count($responseContentAsArray['errors']) > 0);
         $this->assertFalse(key_exists('data', $responseContentAsArray));

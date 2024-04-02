@@ -36,11 +36,7 @@ class PatchTest extends WebTestCase
             Request::METHOD_PATCH,
             "http://webserver/api/products/v1/$productId",
             [
-                [
-                    'op' => 'replace',
-                    'path' => "/$propertyName",
-                    'value' => $propertyValue
-                ]
+                $propertyName => $propertyValue,
             ]
         );
 
@@ -83,11 +79,7 @@ class PatchTest extends WebTestCase
             Request::METHOD_PATCH,
             'http://webserver/api/products/v1/',
             [
-                [
-                    'op' => 'replace',
-                    'path' => "/manufacturer",
-                    "value" => 'Asus'
-                ]
+                'manufacturer' => 'Asus',
             ]
         );
 
@@ -115,11 +107,7 @@ class PatchTest extends WebTestCase
             Request::METHOD_PATCH,
             "http://webserver/api/products/v1/$productId",
             [
-                [
-                    'op' => 'replace',
-                    'path' => "/$propertyName",
-                    'value' => ''
-                ]
+                $propertyName => '',
             ]
         );
 
@@ -148,125 +136,6 @@ class PatchTest extends WebTestCase
     }
 
     /**
-     * @covers       \App\ValueResolver\ProductPatchDtoListArgumentResolver
-     * @covers       \App\Dto\ProductPatchDto
-     * @covers       \App\Dto\ProductPatchDtoList
-     */
-    public function testUpdatePropertyFailsWithOperationAdd(): void
-    {
-        $client = $this->createAuthenticatedClient();
-        $productId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
-        $client->jsonRequest(
-            Request::METHOD_PATCH,
-            "http://webserver/api/products/v1/$productId",
-            [
-                [
-                    'op' => 'add',
-                    'path' => '/newProperty',
-                    'value' => 'xyz'
-                ]
-            ]
-        );
-
-        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $client->getResponse()->getStatusCode());
-
-        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
-        $this->assertTrue(key_exists('errors', $responseContentAsArray));
-        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
-        $this->assertFalse(key_exists('data', $responseContentAsArray));
-    }
-
-    /**
-     * @covers       \App\ValueResolver\ProductPatchDtoListArgumentResolver
-     * @covers       \App\Dto\ProductPatchDto
-     * @covers       \App\Dto\ProductPatchDtoList
-     */
-    public function testUpdatePropertyFailsWithOperationRemove(): void
-    {
-        $client = $this->createAuthenticatedClient();
-        $productId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
-        $client->jsonRequest(
-            Request::METHOD_PATCH,
-            "http://webserver/api/products/v1/$productId",
-            [
-                [
-                    'op' => 'remove',
-                    'path' => '/model',
-                ]
-            ]
-        );
-
-        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $client->getResponse()->getStatusCode());
-
-        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
-        $this->assertTrue(key_exists('errors', $responseContentAsArray));
-        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
-        $this->assertFalse(key_exists('data', $responseContentAsArray));
-
-        /* @var Product $product */
-        $product = $this->getContainer()->get(ProductRepository::class)->find($productId);
-        $this->assertEquals('MeMO Pad HD 7', $product->getModel());
-    }
-
-    /**
-     * @covers       \App\ValueResolver\ProductPatchDtoListArgumentResolver
-     * @covers       \App\Dto\ProductPatchDto
-     * @covers       \App\Dto\ProductPatchDtoList
-     */
-    public function testUpdatePropertyFailsWithOperationMove(): void
-    {
-        $client = $this->createAuthenticatedClient();
-        $productId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
-        $client->jsonRequest(
-            Request::METHOD_PATCH,
-            "http://webserver/api/products/v1/$productId",
-            [
-                [
-                    'op' => 'move',
-                    'from' => '/model',
-                    'path' => '/newModel',
-                ]
-            ]
-        );
-
-        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $client->getResponse()->getStatusCode());
-
-        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
-        $this->assertTrue(key_exists('errors', $responseContentAsArray));
-        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
-        $this->assertFalse(key_exists('data', $responseContentAsArray));
-    }
-
-    /**
-     * @covers       \App\ValueResolver\ProductPatchDtoListArgumentResolver
-     * @covers       \App\Dto\ProductPatchDto
-     * @covers       \App\Dto\ProductPatchDtoList
-     */
-    public function testUpdatePropertyFailsWithOperationCopy(): void
-    {
-        $client = $this->createAuthenticatedClient();
-        $productId = '5c82f07f-3a47-422b-b423-efc3b782ec56';
-        $client->jsonRequest(
-            Request::METHOD_PATCH,
-            "http://webserver/api/products/v1/$productId",
-            [
-                [
-                    'op' => 'move',
-                    'from' => '/model',
-                    'path' => "/model2",
-                ]
-            ]
-        );
-
-        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $client->getResponse()->getStatusCode());
-
-        $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
-        $this->assertTrue(key_exists('errors', $responseContentAsArray));
-        $this->assertTrue(count($responseContentAsArray['errors']) > 0);
-        $this->assertFalse(key_exists('data', $responseContentAsArray));
-    }
-
-    /**
      * @covers       \App\EventSubscriber\PayloadFailedValidationEventSubscriber
      * @covers       \App\Dto\ProductDto
      * @covers       \App\ValueResolver\ProductPatchDtoListArgumentResolver
@@ -281,11 +150,7 @@ class PatchTest extends WebTestCase
             Request::METHOD_PATCH,
             "http://webserver/api/products/v1/$productId",
             [
-                [
-                    'op' => 'replace',
-                    'path' => "/unknownProperty",
-                    "value" => 'xyz'
-                ]
+                'unknownProperty' => 'xyz',
             ]
         );
 
@@ -310,11 +175,7 @@ class PatchTest extends WebTestCase
             Request::METHOD_PATCH,
             "http://webserver/api/products/v1/$productId",
             [
-                [
-                    'op' => 'replace',
-                    'path' => "/id",
-                    "value" => Uuid::v4()
-                ]
+                'id' => Uuid::v4(),
             ]
         );
 
@@ -345,11 +206,7 @@ class PatchTest extends WebTestCase
             Request::METHOD_PATCH,
             "http://webserver/api/products/v1/$productId",
             [
-                [
-                    'op' => 'replace',
-                    'path' => '/price',
-                    "value" => -8000
-                ]
+                'price' => -8000,
             ]
         );
 
@@ -379,11 +236,7 @@ class PatchTest extends WebTestCase
             Request::METHOD_PATCH,
             "http://webserver/api/products/v1/$productId",
             [
-                [
-                    'op' => 'replace',
-                    'path' => "/price",
-                    "value" => 100000000
-                ]
+                'price' => 100000000,
             ]
         );
 
@@ -411,7 +264,7 @@ class PatchTest extends WebTestCase
             [],
             [],
             ['HTTP_CONTENT_TYPE' => 'application/json'],
-            "[{'op':'replace', 'path':'/manufacturer', 'value':'xiaomi'}]",
+            "[{'price': 999}]",
         );
 
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
@@ -442,16 +295,8 @@ class PatchTest extends WebTestCase
             Request::METHOD_PATCH,
             "http://webserver/api/products/v1/$productId",
             [
-                [
-                    'op' => 'replace',
-                    'path' => "/manufacturer",
-                    "value" => $newManufacturer
-                ],
-                [
-                    'op' => 'replace',
-                    'path' => "/model",
-                    "value" => $newModel
-                ]
+                'manufacturer' => $newManufacturer,
+                'model' => $newModel,
             ]
         );
 
@@ -487,16 +332,8 @@ class PatchTest extends WebTestCase
             Request::METHOD_PATCH,
             "http://webserver/api/products/v1/$productId",
             [
-                [
-                    'op' => 'replace',
-                    'path' => "/manufacturer",
-                    "value" => $newManufacturer
-                ],
-                [
-                    'op' => 'replace',
-                    'path' => "/model",
-                    "value" => ''
-                ]
+                    'manufacturer' => $newManufacturer,
+                    'model' => '',
             ]
         );
 
