@@ -3,13 +3,12 @@
 namespace App\Controller\V1;
 
 use App\Dto\ProductDto;
-use App\Dto\ProductPatchDtoList;
 use App\Entity\Product;
 use App\Repository\ProductRepository;
-use App\ValueResolver\ProductPatchDtoListArgumentResolver;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -65,22 +64,16 @@ class ProductApiController extends AbstractController
     #[Route('/{id}', methods: ['PATCH'], format: 'json')]
     public function update(
         Product $product,
-        #[MapRequestPayload(acceptFormat: 'json', resolver: ProductPatchDtoListArgumentResolver::class)]
-        ProductPatchDtoList $productPatchDtoList
+        Request $request
     ): JsonResponse {
-        $productAsArray = $product->toArray();
+        $productDto = ProductDto::fromProduct($product);
 
-        foreach ($productPatchDtoList->patches as $patch) {
-            $productAsArray[ltrim($patch->path, '/')] = $patch->value;
+        try {
+            $productDto->updateFromRequest($request);
+        } catch (\Throwable $e) {
+            return new JsonResponse(['errors' => [$e->getMessage()]], Response::HTTP_BAD_REQUEST);
         }
 
-        $productDto = new ProductDto(
-            $productAsArray['id'],
-            $productAsArray['type'],
-            $productAsArray['manufacturer'],
-            $productAsArray['model'],
-            $productAsArray['price'],
-        );
         $constraintViolationList = $this->validator->validate($productDto);
 
         if ($constraintViolationList->count() !== 0) {

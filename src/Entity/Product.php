@@ -14,7 +14,7 @@ class Product implements \JsonSerializable
     public function __construct(
         #[ORM\Id]
         #[ORM\Column(type: UuidType::NAME)]
-        private UuidV4 $id,
+        private readonly UuidV4 $id,
         #[ORM\Column(length: 255)]
         private string $type,
         #[ORM\Column(length: 255)]
@@ -47,23 +47,9 @@ class Product implements \JsonSerializable
         return $this->manufacturer;
     }
 
-    public function setManufacturer(string $manufacturer): static
-    {
-        $this->manufacturer = $manufacturer;
-
-        return $this;
-    }
-
     public function getModel(): string
     {
         return $this->model;
-    }
-
-    public function setModel(string $model): static
-    {
-        $this->model = $model;
-
-        return $this;
     }
 
     public function getPrice(): ?int
@@ -71,11 +57,9 @@ class Product implements \JsonSerializable
         return $this->price;
     }
 
-    public function setPrice(int $price): static
+    public function getType(): string
     {
-        $this->price = $price;
-
-        return $this;
+        return $this->type;
     }
 
     /**
@@ -116,7 +100,6 @@ class Product implements \JsonSerializable
 
     public function mergeWithDto(ProductDto $productDto): void
     {
-        $this->id = $productDto->id;
         $this->type = $productDto->type;
         $this->manufacturer = $productDto->manufacturer;
         $this->model = $productDto->model;

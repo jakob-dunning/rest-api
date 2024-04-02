@@ -16,7 +16,7 @@ class ShoppingCart implements \JsonSerializable
     public function __construct(
         #[ORM\Id]
         #[ORM\Column(type: UuidType::NAME)]
-        private UuidV4 $id,
+        private readonly UuidV4 $id,
         #[ORM\Column(type: 'datetimetz')]
         private \DateTime $expiresAt,
         /** @var ArrayCollection<int, Product> */
@@ -87,7 +87,6 @@ class ShoppingCart implements \JsonSerializable
 
     public function mergeWithDto(ShoppingCartDto $shoppingCartDto): void
     {
-        $this->id = $shoppingCartDto->id;
         $this->expiresAt = $shoppingCartDto->expiresAt;
     }
 }

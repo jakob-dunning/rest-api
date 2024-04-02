@@ -17,7 +17,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function __construct(
         #[ORM\Id]
         #[ORM\Column(type: UuidType::NAME)]
-        private UuidV4 $id,
+        private readonly UuidV4 $id,
         #[ORM\Column(length: 180)]
         private string $email,
         #[ORM\Column]
@@ -32,18 +32,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getId(): UuidV4
     {
         return $this->id;
-    }
-
-    public function getEmail(): string
-    {
-        return $this->email;
-    }
-
-    public function setEmail(string $email): static
-    {
-        $this->email = $email;
-
-        return $this;
     }
 
     public function getUserIdentifier(): string

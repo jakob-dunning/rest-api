@@ -24,9 +24,6 @@ class PatchTest extends WebTestCase
     /**
      * @covers \App\Entity\ShoppingCart
      * @covers \App\Dto\ShoppingCartDto
-     * @covers \App\ValueResolver\ShoppingCartPatchDtoListArgumentResolver
-     * @covers \App\Dto\ShoppingCartPatchDto
-     * @covers \App\Dto\ShoppingCartPatchDtoList
      * @covers \App\Repository\ShoppingCartRepository
      */
     public function testUpdateExpiresAt(): void
@@ -107,9 +104,6 @@ class PatchTest extends WebTestCase
     /**
      * @covers \App\Dto\ShoppingCartDto
      * @covers \App\EventSubscriber\PayloadFailedValidationEventSubscriber
-     * @covers \App\ValueResolver\ShoppingCartPatchDtoListArgumentResolver
-     * @covers \App\Dto\ShoppingCartPatchDto
-     * @covers \App\Dto\ShoppingCartPatchDtoList
      */
     public function testUpdateExpiresAtFailsWithDateInThePast(): void
     {
@@ -136,11 +130,6 @@ class PatchTest extends WebTestCase
         $this->assertEquals('2024-03-17T12:44:00+00:00', $shoppingCart->getExpiresAt()->format(DATE_ATOM));
     }
 
-    /**
-     * @covers \App\ValueResolver\ShoppingCartPatchDtoListArgumentResolver
-     * @covers \App\Dto\ShoppingCartPatchDto
-     * @covers \App\Dto\ShoppingCartPatchDtoList
-     */
     public function testUpdateExpiresAtFailsWithEmptyDate(): void
     {
         $client = $this->createAuthenticatedClient();
@@ -194,11 +183,6 @@ class PatchTest extends WebTestCase
         $this->assertEquals('2024-03-17T12:44:00+00:00', $shoppingCart->getExpiresAt()->format(DATE_ATOM));
     }
 
-    /**
-     * @covers \App\ValueResolver\ShoppingCartPatchDtoListArgumentResolver
-     * @covers \App\Dto\ShoppingCartPatchDto
-     * @covers \App\Dto\ShoppingCartPatchDtoList
-     */
     public function testUpdateIdFails(): void
     {
         $client = $this->createAuthenticatedClient();
@@ -211,7 +195,7 @@ class PatchTest extends WebTestCase
             ]
         );
 
-        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertTrue(key_exists('errors', $responseContentAsArray));

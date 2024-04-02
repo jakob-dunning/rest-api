@@ -24,9 +24,6 @@ class PatchTest extends WebTestCase
      * @dataProvider propertyProvider
      * @covers       \App\Dto\ProductDto
      * @covers       \App\Entity\Product
-     * @covers       \App\ValueResolver\ProductPatchDtoListArgumentResolver
-     * @covers       \App\Dto\ProductPatchDto
-     * @covers       \App\Dto\ProductPatchDtoList
      */
     public function testUpdateProperty(string $propertyName, string|int $propertyValue): void
     {
@@ -95,9 +92,6 @@ class PatchTest extends WebTestCase
      * @dataProvider stringPropertyProvider
      * @covers       \App\EventSubscriber\PayloadFailedValidationEventSubscriber
      * @covers       \App\Dto\ProductDto
-     * @covers       \App\ValueResolver\ProductPatchDtoListArgumentResolver
-     * @covers       \App\Dto\ProductPatchDto
-     * @covers       \App\Dto\ProductPatchDtoList
      */
     public function testUpdatePropertyFailsWithEmptyStringProperty(string $propertyName): void
     {
@@ -138,9 +132,6 @@ class PatchTest extends WebTestCase
     /**
      * @covers       \App\EventSubscriber\PayloadFailedValidationEventSubscriber
      * @covers       \App\Dto\ProductDto
-     * @covers       \App\ValueResolver\ProductPatchDtoListArgumentResolver
-     * @covers       \App\Dto\ProductPatchDto
-     * @covers       \App\Dto\ProductPatchDtoList
      */
     public function testUpdatePropertyFailsWithUnknownProperty(): void
     {
@@ -154,7 +145,7 @@ class PatchTest extends WebTestCase
             ]
         );
 
-        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
@@ -162,11 +153,6 @@ class PatchTest extends WebTestCase
         $this->assertFalse(key_exists('data', $responseContentAsArray));
     }
 
-    /**
-     * @covers       \App\ValueResolver\ProductPatchDtoListArgumentResolver
-     * @covers       \App\Dto\ProductPatchDto
-     * @covers       \App\Dto\ProductPatchDtoList
-     */
     public function testUpdateIdFails(): void
     {
         $client = $this->createAuthenticatedClient();
@@ -179,7 +165,7 @@ class PatchTest extends WebTestCase
             ]
         );
 
-        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
 
         $responseContentAsArray = json_decode($client->getResponse()->getContent(), true);
         $this->assertTrue(key_exists('errors', $responseContentAsArray));
@@ -194,9 +180,6 @@ class PatchTest extends WebTestCase
     /**
      * @covers       \App\EventSubscriber\PayloadFailedValidationEventSubscriber
      * @covers       \App\Dto\ProductDto
-     * @covers       \App\ValueResolver\ProductPatchDtoListArgumentResolver
-     * @covers       \App\Dto\ProductPatchDto
-     * @covers       \App\Dto\ProductPatchDtoList
      */
     public function testUpdatePriceFailsWithNegativePrice(): void
     {
@@ -224,9 +207,6 @@ class PatchTest extends WebTestCase
     /**
      * @covers       \App\EventSubscriber\PayloadFailedValidationEventSubscriber
      * @covers       \App\Dto\ProductDto
-     * @covers       \App\ValueResolver\ProductPatchDtoListArgumentResolver
-     * @covers       \App\Dto\ProductPatchDto
-     * @covers       \App\Dto\ProductPatchDtoList
      */
     public function testUpdatePriceFailsWithRidiculouslyHighPrice(): void
     {
@@ -281,9 +261,6 @@ class PatchTest extends WebTestCase
     /**
      * @covers       \App\Dto\ProductDto
      * @covers       \App\Entity\Product
-     * @covers       \App\ValueResolver\ProductPatchDtoListArgumentResolver
-     * @covers       \App\Dto\ProductPatchDto
-     * @covers       \App\Dto\ProductPatchDtoList
      */
     public function testUpdateMultipleProperties(): void
     {
@@ -319,9 +296,6 @@ class PatchTest extends WebTestCase
     /**
      * @covers       \App\EventSubscriber\PayloadFailedValidationEventSubscriber
      * @covers       \App\Dto\ProductDto
-     * @covers       \App\ValueResolver\ProductPatchDtoListArgumentResolver
-     * @covers       \App\Dto\ProductPatchDto
-     * @covers       \App\Dto\ProductPatchDtoList
      */
     public function testUpdateMultiplePropertiesFailsWithOneEmptyProperty(): void
     {

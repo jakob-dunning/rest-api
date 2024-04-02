@@ -2,15 +2,14 @@
 
 namespace App\Controller\V1;
 
-use App\Dto\ShoppingCartPatchDtoList;
 use App\Dto\ShoppingCartDto;
 use App\Entity\ShoppingCart;
 use App\Entity\Product;
-use App\ValueResolver\ShoppingCartPatchDtoListArgumentResolver;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -78,19 +77,16 @@ class ShoppingCartApiController extends AbstractController
     #[Route('/{shoppingCart}', methods: ['PATCH'], format: 'json')]
     public function update(
         ShoppingCart $shoppingCart,
-        #[MapRequestPayload(acceptFormat: 'json', resolver: ShoppingCartPatchDtoListArgumentResolver::class)]
-        ShoppingCartPatchDtoList $shoppingCartPatchDtoList
+        Request $request
     ): JsonResponse {
-        $shoppingCartAsScalarArray = $shoppingCart->toScalarArray();
+        $shoppingCartDto = ShoppingCartDto::fromShoppingCart($shoppingCart);
 
-        foreach ($shoppingCartPatchDtoList->patches as $patch) {
-            $shoppingCartAsScalarArray[ltrim($patch->path, '/')] = $patch->value;
+        try {
+            $shoppingCartDto->updateFromRequest($request);
+        } catch (\Throwable $e) {
+            return new JsonResponse(['errors' => [$e->getMessage()]], Response::HTTP_BAD_REQUEST);
         }
 
-        $shoppingCartDto = new ShoppingCartDto(
-            UuidV4::fromString($shoppingCartAsScalarArray['id']),
-            new \DateTime($shoppingCartAsScalarArray['expiresAt']),
-        );
         $constraintViolationList = $this->validator->validate($shoppingCartDto);
 
         if ($constraintViolationList->count() !== 0) {
